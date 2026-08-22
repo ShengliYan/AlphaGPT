@@ -10,6 +10,61 @@ def _fmt(value, nd=3) -> str:
     return f"{float(value):.{nd}f}"
 
 
+def _fmt_ic(value) -> str:
+    return _fmt(value, 4)
+
+
+def _ic_horizons(report: dict) -> list[str]:
+    names = report.get("ic_horizons")
+    if names:
+        return list(names)
+    return ["5m", "10m", "30m", "1h", "1d"]
+
+
+def _ic_row(stats: dict | None, horizon: str) -> dict:
+    if not stats:
+        return {}
+    return (stats.get("ic") or {}).get(horizon) or {}
+
+
+def _mined_ic_section(report: dict) -> list[str]:
+    windows = report.get("windows") or {}
+    horizons = _ic_horizons(report)
+    rows = []
+    for window_name, window in windows.items():
+        best = window.get("best") or {}
+        ic_map = best.get("ic") or {}
+        if not ic_map:
+            continue
+        for horizon in horizons:
+            row = ic_map.get(horizon) or {}
+            if row.get("ic") is None and row.get("rank_ic") is None:
+                continue
+            rows.append(
+                f"| {window_name} | {horizon} | {_fmt_ic(row.get('ic'))} | "
+                f"{_fmt_ic(row.get('rank_ic'))} | {_fmt_ic(row.get('ic_ir'))} | "
+                f"{_fmt_ic(row.get('rank_ic_ir'))} | {_fmt(row.get('ic_tstat'))} | "
+                f"{_fmt(row.get('rank_ic_tstat'))} | {row.get('n_periods') or 'n/a'} |"
+            )
+    if not rows:
+        return []
+    definition = report.get("ic_definition") or (
+        "Cross-sectional Pearson (IC) and Spearman (RankIC) of the mined factor at bar t vs "
+        "`log(open[t+1+h] / open[t+1])`. Exit prices come from 1m opens. "
+        "ICIR is mean/std; t-stat is mean / (std/sqrt(n)). Not used for mining."
+    )
+    return [
+        "## Mined factor IC / RankIC",
+        "",
+        definition,
+        "",
+        "| Window | Horizon | IC | RankIC | ICIR | RankICIR | t(IC) | t(RankIC) | Periods |",
+        "|---|---|---:|---:|---:|---:|---:|---:|---:|",
+        *rows,
+        "",
+    ]
+
+
 def _variant_keys():
     return ["best", "baseline_RET"] + [
         f"feature_{name}" for name in FORMULA_VOCAB.feature_names if name != "RET"
@@ -73,6 +128,7 @@ def write_oos_markdown(report: dict, path: str | Path, takeaway: str | None = No
             f"| Valid days | {report.get('valid_days')} |",
             f"| Train folds | {report.get('n_folds')} |",
             f"| Gap / turnover penalty | {report.get('gap_penalty')} / {report.get('turnover_penalty')} |",
+            f"| IC horizons | {', '.join(_ic_horizons(report))} |",
             "",
             "## Mined formula",
             "",
@@ -120,6 +176,31 @@ def write_oos_markdown(report: dict, path: str | Path, takeaway: str | None = No
             lines.append(f"- Mined formula, traded names only — top 5 Sharpe: {tops}")
             lines.append(f"- Bottom 5 Sharpe: {bots}")
             lines.append("")
+
+        horizons = _ic_horizons(report)
+        if any((window.get(key) or {}).get("ic") for key in keys):
+            lines.append(
+                "IC is the mean cross-sectional Pearson of factor[t] vs "
+                "`log(open[t+1+h]/open[t+1])`; RankIC is Spearman. "
+                "Exit prices are 1m opens. Not used to select the formula."
+            )
+            lines.append("")
+            lines.append("| Variant | " + " | ".join(f"{h} IC / RankIC" for h in horizons) + " |")
+            lines.append("|---|" + "|".join("---:" for _ in horizons) + "|")
+            for key in keys:
+                stats = window.get(key)
+                if not stats or not stats.get("ic"):
+                    continue
+                cells = []
+                for horizon in horizons:
+                    row = _ic_row(stats, horizon)
+                    cells.append(f"{_fmt_ic(row.get('ic'))} / {_fmt_ic(row.get('rank_ic'))}")
+                lines.append(f"| {key} | " + " | ".join(cells) + " |")
+            lines.append("")
+
+    mined_ic_lines = _mined_ic_section(report)
+    if mined_ic_lines:
+        lines.extend(mined_ic_lines)
 
     consistency = report.get("consistency") or []
     if consistency:

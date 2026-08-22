@@ -26,6 +26,9 @@ class ModelConfig:
     GAP_PENALTY = float(os.getenv("GAP_PENALTY", "1.0"))
     # Subtract TURNOVER_PENALTY * mean(|Δposition|) from the training Sharpe.
     TURNOVER_PENALTY = float(os.getenv("TURNOVER_PENALTY", "1.0"))
+    # Cross-sectional IC / RankIC vs these forward-return horizons (1m prices).
+    IC_HORIZONS = os.getenv("IC_HORIZONS", "5m,10m,30m,1h,1d")
+    EVAL_ONLY = os.getenv("EVAL_ONLY", "0").strip().lower() in {"1", "true", "yes", "y"}
     _INTERVAL_DEFAULTS = {
         "1m": {"batch": "32", "steps": "80", "min_qv": "100"},
         "5m": {"batch": "32", "steps": "100", "min_qv": "300"},

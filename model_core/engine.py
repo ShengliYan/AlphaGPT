@@ -1,5 +1,6 @@
 import json
 import math
+import os
 from pathlib import Path
 
 import torch
@@ -10,6 +11,7 @@ from .alphagpt import AlphaGPT, NewtonSchulzLowRankDecay, StableRankMonitor
 from .backtest import SpotBacktest
 from .config import ModelConfig
 from .data_loader import CryptoDataLoader
+from .ic import build_horizon_panels, ic_by_horizon, parse_ic_horizons, slice_horizon_panels
 from .report_md import write_oos_markdown
 from .vocab import decode_formula, FORMULA_VOCAB
 from .vm import StackVM
@@ -49,8 +51,42 @@ def _fold_slices(n_bars: int, n_folds: int) -> list[slice]:
     return slices or [slice(0, n_bars)]
 
 
+def _read_json(path: str | Path) -> dict | None:
+    p = Path(path)
+    if not p.exists():
+        return None
+    try:
+        return json.loads(p.read_text())
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
+def _existing_takeaway(md_path: Path) -> str | None:
+    if not md_path.exists():
+        return None
+    text = md_path.read_text()
+    marker = "## Takeaway"
+    if marker not in text:
+        return None
+    return text.split(marker, 1)[1].strip() or None
+
+
+def _formula_from_disk():
+    for path in (ModelConfig.REPORT_FILE, ModelConfig.STRATEGY_FILE):
+        payload = _read_json(path)
+        if payload and payload.get("formula"):
+            return payload
+    return None
+
+
 class AlphaEngine:
-    def __init__(self, use_lord_regularization=True, lord_decay_rate=1e-3, lord_num_iterations=5):
+    def __init__(
+        self,
+        use_lord_regularization=True,
+        lord_decay_rate=1e-3,
+        lord_num_iterations=5,
+        eval_only=False,
+    ):
         """
         Initialize AlphaGPT training engine.
 
@@ -58,29 +94,35 @@ class AlphaEngine:
             use_lord_regularization: Enable Low-Rank Decay (LoRD) regularization
             lord_decay_rate: Strength of LoRD regularization
             lord_num_iterations: Number of Newton-Schulz iterations per step
+            eval_only: Load data and score an existing formula; skip mining.
         """
+        self.eval_only = bool(eval_only)
         self.loader = CryptoDataLoader()
         self.loader.load_data()
 
-        self.model = AlphaGPT().to(ModelConfig.DEVICE)
-
-        self.opt = torch.optim.AdamW(self.model.parameters(), lr=1e-3)
-
-        self.use_lord = use_lord_regularization
-        if self.use_lord:
-            self.lord_opt = NewtonSchulzLowRankDecay(
-                self.model.named_parameters(),
-                decay_rate=lord_decay_rate,
-                num_iterations=lord_num_iterations,
-                target_keywords=["q_proj", "k_proj", "attention", "qk_norm"]
-            )
-            self.rank_monitor = StableRankMonitor(
-                self.model,
-                target_keywords=["q_proj", "k_proj"]
-            )
-        else:
+        self.use_lord = False if self.eval_only else use_lord_regularization
+        if self.eval_only:
+            self.model = None
+            self.opt = None
             self.lord_opt = None
             self.rank_monitor = None
+        else:
+            self.model = AlphaGPT().to(ModelConfig.DEVICE)
+            self.opt = torch.optim.AdamW(self.model.parameters(), lr=1e-3)
+            if self.use_lord:
+                self.lord_opt = NewtonSchulzLowRankDecay(
+                    self.model.named_parameters(),
+                    decay_rate=lord_decay_rate,
+                    num_iterations=lord_num_iterations,
+                    target_keywords=["q_proj", "k_proj", "attention", "qk_norm"]
+                )
+                self.rank_monitor = StableRankMonitor(
+                    self.model,
+                    target_keywords=["q_proj", "k_proj"]
+                )
+            else:
+                self.lord_opt = None
+                self.rank_monitor = None
 
         self.vm = StackVM()
         self.bt = SpotBacktest()
@@ -245,39 +287,77 @@ class AlphaEngine:
             pbar.set_postfix(postfix_dict)
 
         report = self.evaluate_windows()
-        payload = {
-            "formula": self.best_formula,
-            "formula_decoded": decode_formula(self.best_formula),
-            "score": _json_num(self.best_score) if self.best_formula is not None else None,
-            "features": list(FORMULA_VOCAB.feature_names),
-            "base_fee": ModelConfig.BASE_FEE,
-            "min_quote_volume": ModelConfig.MIN_QUOTE_VOLUME,
-            "bar_interval": ModelConfig.BAR_INTERVAL,
-            "position_mode": ModelConfig.POSITION_MODE,
-            "ls_z_thresh": ModelConfig.LS_Z_THRESH,
-            "impact_coeff": ModelConfig.IMPACT_COEFF,
-            "valid_days": ModelConfig.VALID_DAYS,
-            "n_folds": ModelConfig.N_FOLDS,
-            "gap_penalty": ModelConfig.GAP_PENALTY,
-            "turnover_penalty": ModelConfig.TURNOVER_PENALTY,
-            "train_fold_scores": self.best_fold_scores,
-            "train_fold_mean": _json_num(self.best_train_score),
-            "valid_score": _json_num(self.best_valid_score),
-            "symbols": self.loader.symbols,
-            "split": {name: self.loader.window_meta(name) for name in self.loader.split},
-        }
-        with open(ModelConfig.STRATEGY_FILE, "w") as f:
-            json.dump(payload, f, indent=2)
-        with open(ModelConfig.HISTORY_FILE, "w") as f:
-            json.dump(
-                {
-                    "step": self.training_history["step"],
-                    "avg_reward": [_json_num(x) for x in self.training_history["avg_reward"]],
-                    "best_score": [_json_num(x) for x in self.training_history["best_score"]],
-                    "stable_rank": [_json_num(x) for x in self.training_history["stable_rank"]],
-                },
-                f,
+        self._write_outputs(report, write_strategy=True)
+        print("\nTraining completed.")
+        print(f"  Best selection score: {_json_num(self.best_score)}")
+        print(f"  Train fold mean: {_json_num(self.best_train_score)} folds={self.best_fold_scores}")
+        print(f"  Valid score: {_json_num(self.best_valid_score)}")
+        print(f"  Best formula: {self.best_formula} {decode_formula(self.best_formula)}")
+        self._print_report(report)
+        return report
+
+    def evaluate_existing(self, formula=None):
+        saved = _formula_from_disk() or {}
+        tokens = formula if formula is not None else saved.get("formula")
+        if not tokens:
+            raise FileNotFoundError(
+                "EVAL_ONLY needs a formula in STRATEGY_FILE or REPORT_FILE "
+                f"({ModelConfig.STRATEGY_FILE}, {ModelConfig.REPORT_FILE})"
             )
+        self.best_formula = [int(t) for t in tokens]
+        self.best_score = saved.get("train_fitness", saved.get("score"))
+        self.best_train_score = saved.get("train_fold_mean")
+        self.best_valid_score = saved.get("valid_score")
+        self.best_fold_scores = saved.get("train_fold_scores") or []
+        print(
+            f"Evaluating stored formula {self.best_formula} {decode_formula(self.best_formula)} "
+            f"(no mining). IC horizons={parse_ic_horizons()}"
+        )
+        report = self.evaluate_windows()
+        if saved.get("train_fitness") is not None:
+            report["train_fitness"] = saved.get("train_fitness")
+        if saved.get("selection"):
+            report["selection"] = saved.get("selection")
+        self._write_outputs(report, write_strategy=False)
+        self._print_report(report)
+        return report
+
+    def _write_outputs(self, report, write_strategy=True):
+        if write_strategy:
+            payload = {
+                "formula": self.best_formula,
+                "formula_decoded": decode_formula(self.best_formula),
+                "score": _json_num(self.best_score) if self.best_formula is not None else None,
+                "features": list(FORMULA_VOCAB.feature_names),
+                "base_fee": ModelConfig.BASE_FEE,
+                "min_quote_volume": ModelConfig.MIN_QUOTE_VOLUME,
+                "bar_interval": ModelConfig.BAR_INTERVAL,
+                "position_mode": ModelConfig.POSITION_MODE,
+                "ls_z_thresh": ModelConfig.LS_Z_THRESH,
+                "impact_coeff": ModelConfig.IMPACT_COEFF,
+                "valid_days": ModelConfig.VALID_DAYS,
+                "n_folds": ModelConfig.N_FOLDS,
+                "gap_penalty": ModelConfig.GAP_PENALTY,
+                "turnover_penalty": ModelConfig.TURNOVER_PENALTY,
+                "ic_horizons": parse_ic_horizons(),
+                "train_fold_scores": self.best_fold_scores,
+                "train_fold_mean": _json_num(self.best_train_score),
+                "valid_score": _json_num(self.best_valid_score),
+                "symbols": self.loader.symbols,
+                "split": {name: self.loader.window_meta(name) for name in self.loader.split},
+            }
+            with open(ModelConfig.STRATEGY_FILE, "w") as f:
+                json.dump(payload, f, indent=2)
+            with open(ModelConfig.HISTORY_FILE, "w") as f:
+                json.dump(
+                    {
+                        "step": self.training_history["step"],
+                        "avg_reward": [_json_num(x) for x in self.training_history["avg_reward"]],
+                        "best_score": [_json_num(x) for x in self.training_history["best_score"]],
+                        "stable_rank": [_json_num(x) for x in self.training_history["stable_rank"]],
+                    },
+                    f,
+                )
         report_path = Path(ModelConfig.REPORT_FILE)
         report_path.parent.mkdir(parents=True, exist_ok=True)
         slim = dict(report)
@@ -285,18 +365,11 @@ class AlphaEngine:
         with open(report_path, "w") as f:
             json.dump(slim, f, indent=2)
         md_path = report_path.with_suffix(".md")
-        write_oos_markdown(slim, md_path)
-
-        print("\nTraining completed.")
-        print(f"  Best selection score: {_json_num(self.best_score)}")
-        print(f"  Train fold mean: {_json_num(self.best_train_score)} folds={self.best_fold_scores}")
-        print(f"  Valid score: {_json_num(self.best_valid_score)}")
-        print(f"  Best formula: {self.best_formula} {decode_formula(self.best_formula)}")
-        print(f"  Wrote {ModelConfig.STRATEGY_FILE}")
+        write_oos_markdown(slim, md_path, takeaway=_existing_takeaway(md_path))
         print(f"  Wrote {report_path}")
         print(f"  Wrote {md_path}")
-        self._print_report(report)
-        return report
+        if write_strategy:
+            print(f"  Wrote {ModelConfig.STRATEGY_FILE}")
 
     def evaluate_windows(self):
         formula = self.best_formula if self.best_formula is not None else [0]
@@ -306,6 +379,8 @@ class AlphaEngine:
             if feat_name == "RET":
                 continue
             extra_formulas[f"feature_{feat_name}"] = [idx]
+        ic_horizons = parse_ic_horizons()
+        fwd_panels = build_horizon_panels(self.loader, ic_horizons)
         with torch.no_grad():
             for name, sl in self.loader.split.items():
                 if sl.stop <= sl.start:
@@ -314,17 +389,22 @@ class AlphaEngine:
                 raw = self.loader.slice_raw(sl)
                 target = self.loader.slice_target(sl)
                 times = _slice_times(self.loader.times, sl)
+                fwd = slice_horizon_panels(fwd_panels, sl)
+                quote_volume = raw.get("quote_volume", raw.get("liquidity"))
                 fallback = feat[:, 0, :]
                 window = {**self.loader.window_meta(name)}
                 for key, tokens in extra_formulas.items():
                     res = self.vm.execute(tokens, feat)
-                    window[key] = self.bt.summarize(
-                        res if res is not None else fallback,
+                    factor = res if res is not None else fallback
+                    stats = self.bt.summarize(
+                        factor,
                         raw,
                         target,
                         symbols=self.loader.symbols,
                         times=times,
                     )
+                    stats["ic"] = ic_by_horizon(factor, quote_volume, fwd)
+                    window[key] = stats
                 windows[name] = window
         consistency = self._consistency_table(windows)
         return {
@@ -352,6 +432,12 @@ class AlphaEngine:
             "n_folds": ModelConfig.N_FOLDS,
             "gap_penalty": ModelConfig.GAP_PENALTY,
             "turnover_penalty": ModelConfig.TURNOVER_PENALTY,
+            "ic_horizons": ic_horizons,
+            "ic_definition": (
+                "Cross-sectional Pearson (IC) and Spearman (RankIC) of factor[t] vs "
+                "log(open[t+1+h]/open[t+1]); exit prices from 1m opens. "
+                "Averaged over timestamps with >=10 liquid names. Not used for mining."
+            ),
             "consistency": consistency,
             "windows": windows,
         }
@@ -421,8 +507,32 @@ class AlphaEngine:
                     f"trades={stats.get('total_trades'):.0f}  "
                     f"hit={stats.get('ew_hit_rate'):.3f}"
                 )
+                ic_map = stats.get("ic") or {}
+                if ic_map:
+                    bits = []
+                    for horizon, row in ic_map.items():
+                        ic_v = row.get("ic")
+                        ric_v = row.get("rank_ic")
+                        if ic_v is None and ric_v is None:
+                            continue
+                        bits.append(
+                            f"{horizon}={ic_v if ic_v is None else f'{ic_v:.4f}'}/"
+                            f"{ric_v if ric_v is None else f'{ric_v:.4f}'}"
+                        )
+                    if bits:
+                        print(f"  {key:16s} IC/RankIC  " + "  ".join(bits))
 
 
 if __name__ == "__main__":
-    eng = AlphaEngine(use_lord_regularization=True)
-    eng.train()
+    eval_only = ModelConfig.EVAL_ONLY or os.getenv("EVAL_ONLY", "0").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "y",
+    }
+    if eval_only:
+        eng = AlphaEngine(eval_only=True)
+        eng.evaluate_existing()
+    else:
+        eng = AlphaEngine(use_lord_regularization=True)
+        eng.train()
