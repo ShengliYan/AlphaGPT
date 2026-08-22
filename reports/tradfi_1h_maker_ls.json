@@ -1,0 +1,2302 @@
+{
+  "bar_interval": "1h",
+  "n_symbols": 161,
+  "formula": [
+    0,
+    5,
+    3,
+    11,
+    9,
+    12,
+    9,
+    15
+  ],
+  "formula_decoded": [
+    "RET",
+    "LOG_VOL",
+    "VOL_CHG",
+    "ABS",
+    "DIV",
+    "SIGN",
+    "DIV",
+    "DECAY"
+  ],
+  "train_fitness": 2.625903606414795,
+  "fee_bps": 0.0,
+  "min_quote_volume": 1000.0,
+  "trade_size_usd": 1000.0,
+  "position_mode": "long_short",
+  "ls_z_thresh": 0.0,
+  "impact_coeff": 0.0,
+  "train_steps": 200,
+  "batch_size": 256,
+  "test_days": 30,
+  "oos_days": 14,
+  "windows": {
+    "train": {
+      "name": "train",
+      "n_bars": 4217,
+      "start": "2026-01-28T14:00:00.000000000",
+      "end": "2026-07-23T06:00:00.000000000",
+      "best": {
+        "n_symbols": 161,
+        "n_bars": 4217,
+        "position_mode": "long_short",
+        "fitness_ew_period_sharpe": 2.625903606414795,
+        "fitness_median_period_sharpe": 0.3612176477909088,
+        "median_ann_sharpe": 0.5206180214881897,
+        "mean_ann_sharpe": 0.84820157289505,
+        "ew_ann_sharpe": 3.7846789360046387,
+        "ew_period_sharpe": 2.625903606414795,
+        "ew_mean_bar": 4.944712418364361e-05,
+        "ew_ann_return": 0.433156807848718,
+        "ew_sum_bar": 0.20851851999759674,
+        "ew_max_drawdown": -0.035910166800022125,
+        "ew_hit_rate": 0.49419018626213074,
+        "mean_pnl": 4.944712418364361e-05,
+        "total_trades": 39993.0,
+        "mean_trades_per_symbol": 248.4037322998047,
+        "long_bars": 64397.0,
+        "short_bars": 106345.0,
+        "top5": [
+          {
+            "symbol": "LITEUSDT",
+            "ann_sharpe": 4.70344877243042,
+            "period_sharpe": 3.263368606567383,
+            "mean_pnl": 0.00033625029027462006,
+            "trades": 329.5,
+            "active_bars": 1650.0
+          },
+          {
+            "symbol": "MRVLUSDT",
+            "ann_sharpe": 4.431049346923828,
+            "period_sharpe": 3.074371337890625,
+            "mean_pnl": 0.00037182297091931105,
+            "trades": 328.5,
+            "active_bars": 1649.0
+          },
+          {
+            "symbol": "CRWVUSDT",
+            "ann_sharpe": 3.8829171657562256,
+            "period_sharpe": 2.694063663482666,
+            "mean_pnl": 0.0002700861368793994,
+            "trades": 318.5,
+            "active_bars": 1577.0
+          },
+          {
+            "symbol": "AAOIUSDT",
+            "ann_sharpe": 3.8453638553619385,
+            "period_sharpe": 2.668008327484131,
+            "mean_pnl": 0.0002938557299785316,
+            "trades": 210.5,
+            "active_bars": 1078.0
+          },
+          {
+            "symbol": "ALABUSDT",
+            "ann_sharpe": 3.791755199432373,
+            "period_sharpe": 2.6308131217956543,
+            "mean_pnl": 0.00020371608843561262,
+            "trades": 162.5,
+            "active_bars": 691.0
+          }
+        ],
+        "bottom5": [
+          {
+            "symbol": "COINUSDT",
+            "ann_sharpe": -2.7655060291290283,
+            "period_sharpe": -1.918776273727417,
+            "mean_pnl": -0.00023042970860842615,
+            "trades": 1106.5,
+            "active_bars": 3928.0
+          },
+          {
+            "symbol": "SQQQUSDT",
+            "ann_sharpe": -2.2111639976501465,
+            "period_sharpe": -1.5341601371765137,
+            "mean_pnl": -5.6756194680929184e-05,
+            "trades": 112.5,
+            "active_bars": 552.0
+          },
+          {
+            "symbol": "SPYUSDT",
+            "ann_sharpe": -2.2097630500793457,
+            "period_sharpe": -1.5331881046295166,
+            "mean_pnl": -2.8287611712585203e-05,
+            "trades": 410.5,
+            "active_bars": 2586.0
+          },
+          {
+            "symbol": "TSLAUSDT",
+            "ann_sharpe": -2.0449893474578857,
+            "period_sharpe": -1.4188640117645264,
+            "mean_pnl": -9.960717579815537e-05,
+            "trades": 1133.5,
+            "active_bars": 4097.0
+          },
+          {
+            "symbol": "TZAUSDT",
+            "ann_sharpe": -1.8748685121536255,
+            "period_sharpe": -1.3008300065994263,
+            "mean_pnl": -2.553797821747139e-05,
+            "trades": 35.5,
+            "active_bars": 163.0
+          }
+        ],
+        "start": "2026-01-28T14:00:00.000000000",
+        "end": "2026-07-23T06:00:00.000000000"
+      },
+      "baseline_RET": {
+        "n_symbols": 161,
+        "n_bars": 4217,
+        "position_mode": "long_short",
+        "fitness_ew_period_sharpe": 0.2247174233198166,
+        "fitness_median_period_sharpe": 0.0,
+        "median_ann_sharpe": 0.0,
+        "mean_ann_sharpe": 0.13797783851623535,
+        "ew_ann_sharpe": 0.323882132768631,
+        "ew_period_sharpe": 0.2247174233198166,
+        "ew_mean_bar": 4.130640263610985e-06,
+        "ew_ann_return": 0.03618440870923223,
+        "ew_sum_bar": 0.017418917268514633,
+        "ew_max_drawdown": -0.06625789403915405,
+        "ew_hit_rate": 0.4251837730407715,
+        "mean_pnl": 4.130637080379529e-06,
+        "total_trades": 72461.0,
+        "mean_trades_per_symbol": 450.0683288574219,
+        "long_bars": 72547.0,
+        "short_bars": 98139.0,
+        "top5": [
+          {
+            "symbol": "EBAYUSDT",
+            "ann_sharpe": 3.639233350753784,
+            "period_sharpe": 2.5249898433685303,
+            "mean_pnl": 7.051278953440487e-05,
+            "trades": 430.5,
+            "active_bars": 857.0
+          },
+          {
+            "symbol": "ZMUSDT",
+            "ann_sharpe": 3.5312564373016357,
+            "period_sharpe": 2.450072765350342,
+            "mean_pnl": 9.357380622532219e-05,
+            "trades": 403.5,
+            "active_bars": 843.0
+          },
+          {
+            "symbol": "CSCOUSDT",
+            "ann_sharpe": 3.4115960597991943,
+            "period_sharpe": 2.3670494556427,
+            "mean_pnl": 0.0001009464540402405,
+            "trades": 662.5,
+            "active_bars": 1449.0
+          },
+          {
+            "symbol": "ADBEUSDT",
+            "ann_sharpe": 3.188560724258423,
+            "period_sharpe": 2.2123022079467773,
+            "mean_pnl": 9.14601914701052e-05,
+            "trades": 400.5,
+            "active_bars": 959.0
+          },
+          {
+            "symbol": "IBMUSDT",
+            "ann_sharpe": 3.0652945041656494,
+            "period_sharpe": 2.126776933670044,
+            "mean_pnl": 0.00016603275435045362,
+            "trades": 467.5,
+            "active_bars": 1193.0
+          }
+        ],
+        "bottom5": [
+          {
+            "symbol": "EWJUSDT",
+            "ann_sharpe": -4.416472911834717,
+            "period_sharpe": -3.064257860183716,
+            "mean_pnl": -0.0001334140106337145,
+            "trades": 1463.5,
+            "active_bars": 2936.0
+          },
+          {
+            "symbol": "INTCUSDT",
+            "ann_sharpe": -2.685150384902954,
+            "period_sharpe": -1.8630236387252808,
+            "mean_pnl": -0.000252246274612844,
+            "trades": 2078.5,
+            "active_bars": 4085.0
+          },
+          {
+            "symbol": "PAYPUSDT",
+            "ann_sharpe": -2.4594509601593018,
+            "period_sharpe": -1.706427812576294,
+            "mean_pnl": -0.00017654600378591567,
+            "trades": 1416.5,
+            "active_bars": 2756.0
+          },
+          {
+            "symbol": "SPYUSDT",
+            "ann_sharpe": -2.1354825496673584,
+            "period_sharpe": -1.481650471687317,
+            "mean_pnl": -2.7337235223967582e-05,
+            "trades": 920.5,
+            "active_bars": 2586.0
+          },
+          {
+            "symbol": "ZHIPUUSDT",
+            "ann_sharpe": -2.044322967529297,
+            "period_sharpe": -1.4184017181396484,
+            "mean_pnl": -9.127319208346307e-05,
+            "trades": 50.5,
+            "active_bars": 148.0
+          }
+        ],
+        "start": "2026-01-28T14:00:00.000000000",
+        "end": "2026-07-23T06:00:00.000000000"
+      },
+      "feature_LIQ": {
+        "n_symbols": 161,
+        "n_bars": 4217,
+        "position_mode": "long_short",
+        "fitness_ew_period_sharpe": -1.196609616279602,
+        "fitness_median_period_sharpe": -0.1965542882680893,
+        "median_ann_sharpe": -0.2832909822463989,
+        "mean_ann_sharpe": -0.4294251501560211,
+        "ew_ann_sharpe": -1.7246571779251099,
+        "ew_period_sharpe": -1.196609616279602,
+        "ew_mean_bar": -2.5131410438916646e-05,
+        "ew_ann_return": -0.22015115544490982,
+        "ew_sum_bar": -0.10597915947437286,
+        "ew_max_drawdown": -0.14820316433906555,
+        "ew_hit_rate": 0.4913445711135864,
+        "mean_pnl": -2.513141225790605e-05,
+        "total_trades": 45446.0,
+        "mean_trades_per_symbol": 282.2732849121094,
+        "long_bars": 120650.0,
+        "short_bars": 50092.0,
+        "top5": [
+          {
+            "symbol": "HOODUSDT",
+            "ann_sharpe": 3.0276849269866943,
+            "period_sharpe": 2.100682497024536,
+            "mean_pnl": 0.0002570620854385197,
+            "trades": 1368.5,
+            "active_bars": 4096.0
+          },
+          {
+            "symbol": "NVOUSDT",
+            "ann_sharpe": 2.0256035327911377,
+            "period_sharpe": 1.4054137468338013,
+            "mean_pnl": 5.690883335773833e-05,
+            "trades": 290.5,
+            "active_bars": 1068.0
+          },
+          {
+            "symbol": "METAUSDT",
+            "ann_sharpe": 1.6020044088363647,
+            "period_sharpe": 1.111510157585144,
+            "mean_pnl": 6.235783803276718e-05,
+            "trades": 985.5,
+            "active_bars": 2849.0
+          },
+          {
+            "symbol": "HK0700USDT",
+            "ann_sharpe": 1.5501574277877808,
+            "period_sharpe": 1.0755374431610107,
+            "mean_pnl": 5.370691724237986e-06,
+            "trades": 6.5,
+            "active_bars": 27.0
+          },
+          {
+            "symbol": "ADBEUSDT",
+            "ann_sharpe": 1.4956927299499512,
+            "period_sharpe": 1.0377485752105713,
+            "mean_pnl": 4.2921630665659904e-05,
+            "trades": 249.5,
+            "active_bars": 959.0
+          }
+        ],
+        "bottom5": [
+          {
+            "symbol": "MSTRUSDT",
+            "ann_sharpe": -3.4820406436920166,
+            "period_sharpe": -2.4159257411956787,
+            "mean_pnl": -0.00031107236281968653,
+            "trades": 1283.5,
+            "active_bars": 3929.0
+          },
+          {
+            "symbol": "ONDSUSDT",
+            "ann_sharpe": -2.792050361633301,
+            "period_sharpe": -1.9371933937072754,
+            "mean_pnl": -0.00016528830747120082,
+            "trades": 274.5,
+            "active_bars": 1096.0
+          },
+          {
+            "symbol": "INTWUSDT",
+            "ann_sharpe": -2.588449239730835,
+            "period_sharpe": -1.7959299087524414,
+            "mean_pnl": -0.00011837933561764657,
+            "trades": 69.5,
+            "active_bars": 328.0
+          },
+          {
+            "symbol": "ALABUSDT",
+            "ann_sharpe": -2.5413031578063965,
+            "period_sharpe": -1.7632187604904175,
+            "mean_pnl": -0.00013659590331371874,
+            "trades": 169.5,
+            "active_bars": 691.0
+          },
+          {
+            "symbol": "WMTUSDT",
+            "ann_sharpe": -2.468385696411133,
+            "period_sharpe": -1.7126268148422241,
+            "mean_pnl": -5.1446833822410554e-05,
+            "trades": 339.5,
+            "active_bars": 1358.0
+          }
+        ],
+        "start": "2026-01-28T14:00:00.000000000",
+        "end": "2026-07-23T06:00:00.000000000"
+      },
+      "feature_PRESSURE": {
+        "n_symbols": 161,
+        "n_bars": 4217,
+        "position_mode": "long_short",
+        "fitness_ew_period_sharpe": -1.5543172359466553,
+        "fitness_median_period_sharpe": -0.1461300402879715,
+        "median_ann_sharpe": -0.21061523258686066,
+        "mean_ann_sharpe": -0.6715347766876221,
+        "ew_ann_sharpe": -2.2402162551879883,
+        "ew_period_sharpe": -1.5543172359466553,
+        "ew_mean_bar": -2.3799770133337006e-05,
+        "ew_ann_return": -0.20848598636803217,
+        "ew_sum_bar": -0.10036363452672958,
+        "ew_max_drawdown": -0.14783763885498047,
+        "ew_hit_rate": 0.41380128264427185,
+        "mean_pnl": -2.3799770133337006e-05,
+        "total_trades": 91044.0,
+        "mean_trades_per_symbol": 565.4906616210938,
+        "long_bars": 85676.0,
+        "short_bars": 85066.0,
+        "top5": [
+          {
+            "symbol": "MVLLUSDT",
+            "ann_sharpe": 2.198333740234375,
+            "period_sharpe": 1.5252583026885986,
+            "mean_pnl": 0.00016734818927943707,
+            "trades": 264.5,
+            "active_bars": 570.0
+          },
+          {
+            "symbol": "CATUSDT",
+            "ann_sharpe": 2.1281776428222656,
+            "period_sharpe": 1.4765821695327759,
+            "mean_pnl": 4.420859841047786e-05,
+            "trades": 207.0,
+            "active_bars": 414.0
+          },
+          {
+            "symbol": "NOWUSDT",
+            "ann_sharpe": 2.0604305267333984,
+            "period_sharpe": 1.4295775890350342,
+            "mean_pnl": 8.748324762564152e-05,
+            "trades": 598.5,
+            "active_bars": 1147.0
+          },
+          {
+            "symbol": "SNXXUSDT",
+            "ann_sharpe": 1.984239935874939,
+            "period_sharpe": 1.3767147064208984,
+            "mean_pnl": 0.00014870251470711082,
+            "trades": 169.5,
+            "active_bars": 329.0
+          },
+          {
+            "symbol": "AMATUSDT",
+            "ann_sharpe": 1.7476835250854492,
+            "period_sharpe": 1.2125859260559082,
+            "mean_pnl": 8.83352113305591e-05,
+            "trades": 513.5,
+            "active_bars": 1073.0
+          }
+        ],
+        "bottom5": [
+          {
+            "symbol": "EWJUSDT",
+            "ann_sharpe": -4.299243927001953,
+            "period_sharpe": -2.982921600341797,
+            "mean_pnl": -0.00013047993707004935,
+            "trades": 1579.5,
+            "active_bars": 2938.0
+          },
+          {
+            "symbol": "BXUSDT",
+            "ann_sharpe": -4.258665084838867,
+            "period_sharpe": -2.9547669887542725,
+            "mean_pnl": -0.00012031233927700669,
+            "trades": 570.5,
+            "active_bars": 980.0
+          },
+          {
+            "symbol": "SPYUSDT",
+            "ann_sharpe": -4.236865043640137,
+            "period_sharpe": -2.9396414756774902,
+            "mean_pnl": -5.419654553406872e-05,
+            "trades": 1369.5,
+            "active_bars": 2586.0
+          },
+          {
+            "symbol": "BABAUSDT",
+            "ann_sharpe": -3.7956714630126953,
+            "period_sharpe": -2.633530378341675,
+            "mean_pnl": -0.00017002383538056165,
+            "trades": 1164.5,
+            "active_bars": 2241.0
+          },
+          {
+            "symbol": "EWZUSDT",
+            "ann_sharpe": -3.4583210945129395,
+            "period_sharpe": -2.399468421936035,
+            "mean_pnl": -5.980595960863866e-05,
+            "trades": 473.0,
+            "active_bars": 792.0
+          }
+        ],
+        "start": "2026-01-28T14:00:00.000000000",
+        "end": "2026-07-23T06:00:00.000000000"
+      },
+      "feature_VOL_CHG": {
+        "n_symbols": 161,
+        "n_bars": 4217,
+        "position_mode": "long_short",
+        "fitness_ew_period_sharpe": -0.35554665327072144,
+        "fitness_median_period_sharpe": 0.0,
+        "median_ann_sharpe": 0.0,
+        "mean_ann_sharpe": -0.1599085032939911,
+        "ew_ann_sharpe": -0.5124444961547852,
+        "ew_period_sharpe": -0.35554665327072144,
+        "ew_mean_bar": -6.751417913619662e-06,
+        "ew_ann_return": -0.059142420923308237,
+        "ew_sum_bar": -0.028470739722251892,
+        "ew_max_drawdown": -0.11530283093452454,
+        "ew_hit_rate": 0.49324163794517517,
+        "mean_pnl": -6.751418368367013e-06,
+        "total_trades": 21181.0,
+        "mean_trades_per_symbol": 131.5590057373047,
+        "long_bars": 120778.0,
+        "short_bars": 48233.0,
+        "top5": [
+          {
+            "symbol": "GOOGLUSDT",
+            "ann_sharpe": 2.933823585510254,
+            "period_sharpe": 2.0355591773986816,
+            "mean_pnl": 9.568694804329425e-05,
+            "trades": 741.5,
+            "active_bars": 2825.0
+          },
+          {
+            "symbol": "CRCLUSDT",
+            "ann_sharpe": 2.792172908782959,
+            "period_sharpe": 1.9372785091400146,
+            "mean_pnl": 0.0003009004285559058,
+            "trades": 821.5,
+            "active_bars": 3856.0
+          },
+          {
+            "symbol": "MUUSDT",
+            "ann_sharpe": 2.189749240875244,
+            "period_sharpe": 1.5193021297454834,
+            "mean_pnl": 0.0001856532908277586,
+            "trades": 607.5,
+            "active_bars": 2542.0
+          },
+          {
+            "symbol": "PLTRUSDT",
+            "ann_sharpe": 2.059757947921753,
+            "period_sharpe": 1.4291108846664429,
+            "mean_pnl": 0.00012056277046212927,
+            "trades": 877.5,
+            "active_bars": 3848.0
+          },
+          {
+            "symbol": "PAYPUSDT",
+            "ann_sharpe": 2.024097204208374,
+            "period_sharpe": 1.40436851978302,
+            "mean_pnl": 0.00014432906755246222,
+            "trades": 798.5,
+            "active_bars": 2733.0
+          }
+        ],
+        "bottom5": [
+          {
+            "symbol": "APPUSDT",
+            "ann_sharpe": -2.644606590270996,
+            "period_sharpe": -1.8348932266235352,
+            "mean_pnl": -5.7440287491772324e-05,
+            "trades": 12.5,
+            "active_bars": 298.0
+          },
+          {
+            "symbol": "EWYUSDT",
+            "ann_sharpe": -2.1578621864318848,
+            "period_sharpe": -1.497178077697754,
+            "mean_pnl": -0.00014536399976350367,
+            "trades": 546.5,
+            "active_bars": 3059.0
+          },
+          {
+            "symbol": "WMTUSDT",
+            "ann_sharpe": -2.085108995437622,
+            "period_sharpe": -1.4466999769210815,
+            "mean_pnl": -4.2833278712350875e-05,
+            "trades": 142.5,
+            "active_bars": 1346.0
+          },
+          {
+            "symbol": "OPENAIUSDT",
+            "ann_sharpe": -2.0592267513275146,
+            "period_sharpe": -1.4287424087524414,
+            "mean_pnl": -8.182167948689312e-05,
+            "trades": 11.5,
+            "active_bars": 1380.0
+          },
+          {
+            "symbol": "ORCLUSDT",
+            "ann_sharpe": -1.980405330657959,
+            "period_sharpe": -1.3740540742874146,
+            "mean_pnl": -9.350042091682553e-05,
+            "trades": 14.5,
+            "active_bars": 1636.0
+          }
+        ],
+        "start": "2026-01-28T14:00:00.000000000",
+        "end": "2026-07-23T06:00:00.000000000"
+      },
+      "feature_DEV": {
+        "n_symbols": 161,
+        "n_bars": 4217,
+        "position_mode": "long_short",
+        "fitness_ew_period_sharpe": -1.7311408519744873,
+        "fitness_median_period_sharpe": -0.4001702070236206,
+        "median_ann_sharpe": -0.5767598152160645,
+        "mean_ann_sharpe": -0.7862468957901001,
+        "ew_ann_sharpe": -2.4950695037841797,
+        "ew_period_sharpe": -1.7311408519744873,
+        "ew_mean_bar": -2.889764800784178e-05,
+        "ew_ann_return": -0.253143396548694,
+        "ew_sum_bar": -0.12186137586832047,
+        "ew_max_drawdown": -0.16885432600975037,
+        "ew_hit_rate": 0.42589518427848816,
+        "mean_pnl": -2.8897649826831184e-05,
+        "total_trades": 25269.0,
+        "mean_trades_per_symbol": 156.9503173828125,
+        "long_bars": 84337.0,
+        "short_bars": 86376.0,
+        "top5": [
+          {
+            "symbol": "MVLLUSDT",
+            "ann_sharpe": 2.29872465133667,
+            "period_sharpe": 1.594911813735962,
+            "mean_pnl": 0.00017498593661002815,
+            "trades": 66.5,
+            "active_bars": 570.0
+          },
+          {
+            "symbol": "SNXXUSDT",
+            "ann_sharpe": 2.071851968765259,
+            "period_sharpe": 1.4375020265579224,
+            "mean_pnl": 0.00015526516654063016,
+            "trades": 24.5,
+            "active_bars": 329.0
+          },
+          {
+            "symbol": "SOFIUSDT",
+            "ann_sharpe": 1.8037232160568237,
+            "period_sharpe": 1.2514677047729492,
+            "mean_pnl": 9.972226507670712e-06,
+            "trades": 3.5,
+            "active_bars": 46.0
+          },
+          {
+            "symbol": "ZHIPUUSDT",
+            "ann_sharpe": 1.702006459236145,
+            "period_sharpe": 1.1808940172195435,
+            "mean_pnl": 7.599530363222584e-05,
+            "trades": 15.5,
+            "active_bars": 148.0
+          },
+          {
+            "symbol": "KSTRUSDT",
+            "ann_sharpe": 1.6788012981414795,
+            "period_sharpe": 1.164793848991394,
+            "mean_pnl": 4.847355739912018e-05,
+            "trades": 69.5,
+            "active_bars": 469.0
+          }
+        ],
+        "bottom5": [
+          {
+            "symbol": "DISUSDT",
+            "ann_sharpe": -5.5910139083862305,
+            "period_sharpe": -3.879183530807495,
+            "mean_pnl": -0.00011968047328991815,
+            "trades": 353.5,
+            "active_bars": 1448.0
+          },
+          {
+            "symbol": "IWMUSDT",
+            "ann_sharpe": -4.667621612548828,
+            "period_sharpe": -3.238510847091675,
+            "mean_pnl": -7.189848838606849e-05,
+            "trades": 211.5,
+            "active_bars": 971.0
+          },
+          {
+            "symbol": "BXUSDT",
+            "ann_sharpe": -3.8499743938446045,
+            "period_sharpe": -2.6712071895599365,
+            "mean_pnl": -0.00010878688044613227,
+            "trades": 199.5,
+            "active_bars": 980.0
+          },
+          {
+            "symbol": "EBAYUSDT",
+            "ann_sharpe": -3.5245954990386963,
+            "period_sharpe": -2.445451259613037,
+            "mean_pnl": -6.829479389125481e-05,
+            "trades": 204.5,
+            "active_bars": 857.0
+          },
+          {
+            "symbol": "TSMUSDT",
+            "ann_sharpe": -3.4957966804504395,
+            "period_sharpe": -2.4254698753356934,
+            "mean_pnl": -0.00014772292342968285,
+            "trades": 377.5,
+            "active_bars": 2582.0
+          }
+        ],
+        "start": "2026-01-28T14:00:00.000000000",
+        "end": "2026-07-23T06:00:00.000000000"
+      },
+      "feature_LOG_VOL": {
+        "n_symbols": 161,
+        "n_bars": 4217,
+        "position_mode": "long_short",
+        "fitness_ew_period_sharpe": -1.1814372539520264,
+        "fitness_median_period_sharpe": -0.1844651997089386,
+        "median_ann_sharpe": -0.2658671736717224,
+        "mean_ann_sharpe": -0.389883428812027,
+        "ew_ann_sharpe": -1.7027894258499146,
+        "ew_period_sharpe": -1.1814372539520264,
+        "ew_mean_bar": -1.8984084817930125e-05,
+        "ew_ann_return": -0.1663005830050679,
+        "ew_sum_bar": -0.08005588501691818,
+        "ew_max_drawdown": -0.1253235787153244,
+        "ew_hit_rate": 0.49442732334136963,
+        "mean_pnl": -1.8984084817930125e-05,
+        "total_trades": 11269.0,
+        "mean_trades_per_symbol": 69.99378967285156,
+        "long_bars": 114193.0,
+        "short_bars": 56549.0,
+        "top5": [
+          {
+            "symbol": "AMZNUSDT",
+            "ann_sharpe": 1.9945794343948364,
+            "period_sharpe": 1.3838883638381958,
+            "mean_pnl": 7.540332444477826e-05,
+            "trades": 623.5,
+            "active_bars": 3924.0
+          },
+          {
+            "symbol": "INTCUSDT",
+            "ann_sharpe": 1.7110044956207275,
+            "period_sharpe": 1.1871371269226074,
+            "mean_pnl": 0.00016102356312330812,
+            "trades": 495.5,
+            "active_bars": 4096.0
+          },
+          {
+            "symbol": "GOOGLUSDT",
+            "ann_sharpe": 1.6460978984832764,
+            "period_sharpe": 1.1421033143997192,
+            "mean_pnl": 5.4140509746503085e-05,
+            "trades": 296.5,
+            "active_bars": 2849.0
+          },
+          {
+            "symbol": "MSTRUSDT",
+            "ann_sharpe": 1.4857949018478394,
+            "period_sharpe": 1.0308811664581299,
+            "mean_pnl": 0.0001328104262938723,
+            "trades": 438.5,
+            "active_bars": 3929.0
+          },
+          {
+            "symbol": "JPMUSDT",
+            "ann_sharpe": 1.3935117721557617,
+            "period_sharpe": 0.9668527841567993,
+            "mean_pnl": 3.0293809686554596e-05,
+            "trades": 94.5,
+            "active_bars": 1447.0
+          }
+        ],
+        "bottom5": [
+          {
+            "symbol": "APPUSDT",
+            "ann_sharpe": -2.5558652877807617,
+            "period_sharpe": -1.773322343826294,
+            "mean_pnl": -5.60141634196043e-05,
+            "trades": 9.5,
+            "active_bars": 301.0
+          },
+          {
+            "symbol": "HYUNDAIUSDT",
+            "ann_sharpe": -2.2797091007232666,
+            "period_sharpe": -1.5817184448242188,
+            "mean_pnl": -0.00011386114056222141,
+            "trades": 34.5,
+            "active_bars": 1184.0
+          },
+          {
+            "symbol": "WMTUSDT",
+            "ann_sharpe": -2.2009949684143066,
+            "period_sharpe": -1.5271046161651611,
+            "mean_pnl": -4.58770664408803e-05,
+            "trades": 132.5,
+            "active_bars": 1358.0
+          },
+          {
+            "symbol": "OPENAIUSDT",
+            "ann_sharpe": -2.1943373680114746,
+            "period_sharpe": -1.5224854946136475,
+            "mean_pnl": -8.784369128989056e-05,
+            "trades": 0.5,
+            "active_bars": 1391.0
+          },
+          {
+            "symbol": "MUUSDT",
+            "ann_sharpe": -2.077021837234497,
+            "period_sharpe": -1.4410890340805054,
+            "mean_pnl": -0.00017897704674396664,
+            "trades": 130.5,
+            "active_bars": 2562.0
+          }
+        ],
+        "start": "2026-01-28T14:00:00.000000000",
+        "end": "2026-07-23T06:00:00.000000000"
+      }
+    },
+    "test_30d": {
+      "name": "test_30d",
+      "n_bars": 721,
+      "start": "2026-07-23T07:00:00.000000000",
+      "end": "2026-08-22T07:00:00.000000000",
+      "best": {
+        "n_symbols": 161,
+        "n_bars": 721,
+        "position_mode": "long_short",
+        "fitness_ew_period_sharpe": -1.2664575576782227,
+        "fitness_median_period_sharpe": -0.37923464179039,
+        "median_ann_sharpe": -1.3218811750411987,
+        "mean_ann_sharpe": -1.298998236656189,
+        "ew_ann_sharpe": -4.414434432983398,
+        "ew_period_sharpe": -1.2664575576782227,
+        "ew_mean_bar": -0.00014696035941597074,
+        "ew_ann_return": -1.2873727484839037,
+        "ew_sum_bar": -0.10595841705799103,
+        "ew_max_drawdown": -0.18182212114334106,
+        "ew_hit_rate": 0.46047157049179077,
+        "mean_pnl": -0.00014696035941597074,
+        "total_trades": 19562.0,
+        "mean_trades_per_symbol": 121.50310516357422,
+        "long_bars": 26410.0,
+        "short_bars": 73325.0,
+        "top5": [
+          {
+            "symbol": "LLYUSDT",
+            "ann_sharpe": 6.409703254699707,
+            "period_sharpe": 1.8388804197311401,
+            "mean_pnl": 0.00027644287911243737,
+            "trades": 124.5,
+            "active_bars": 706.0
+          },
+          {
+            "symbol": "TZAUSDT",
+            "ann_sharpe": 6.090607166290283,
+            "period_sharpe": 1.7473348379135132,
+            "mean_pnl": 0.00032082299003377557,
+            "trades": 164.5,
+            "active_bars": 608.0
+          },
+          {
+            "symbol": "IBMUSDT",
+            "ann_sharpe": 5.735987186431885,
+            "period_sharpe": 1.6455979347229004,
+            "mean_pnl": 0.00023961956321727484,
+            "trades": 113.5,
+            "active_bars": 720.0
+          },
+          {
+            "symbol": "COSTUSDT",
+            "ann_sharpe": 5.320725440979004,
+            "period_sharpe": 1.526463508605957,
+            "mean_pnl": 0.0001274979586014524,
+            "trades": 169.5,
+            "active_bars": 606.0
+          },
+          {
+            "symbol": "PYPLUSDT",
+            "ann_sharpe": 5.153624057769775,
+            "period_sharpe": 1.4785237312316895,
+            "mean_pnl": 0.00018680955690797418,
+            "trades": 135.5,
+            "active_bars": 483.0
+          }
+        ],
+        "bottom5": [
+          {
+            "symbol": "STRCUSDT",
+            "ann_sharpe": -9.779487609863281,
+            "period_sharpe": -2.805638074874878,
+            "mean_pnl": -0.00023523002164438367,
+            "trades": 120.5,
+            "active_bars": 705.0
+          },
+          {
+            "symbol": "URNMUSDT",
+            "ann_sharpe": -8.750686645507812,
+            "period_sharpe": -2.5104854106903076,
+            "mean_pnl": -0.0004353809345047921,
+            "trades": 173.5,
+            "active_bars": 592.0
+          },
+          {
+            "symbol": "MINIMAXUSDT",
+            "ann_sharpe": -7.279318332672119,
+            "period_sharpe": -2.088364362716675,
+            "mean_pnl": -0.0011969060869887471,
+            "trades": 114.5,
+            "active_bars": 719.0
+          },
+          {
+            "symbol": "USARUSDT",
+            "ann_sharpe": -7.09622859954834,
+            "period_sharpe": -2.0358376502990723,
+            "mean_pnl": -0.0007271774229593575,
+            "trades": 114.5,
+            "active_bars": 719.0
+          },
+          {
+            "symbol": "SOFIUSDT",
+            "ann_sharpe": -6.928990364074707,
+            "period_sharpe": -1.987858772277832,
+            "mean_pnl": -0.0004394564894028008,
+            "trades": 179.5,
+            "active_bars": 582.0
+          }
+        ],
+        "start": "2026-07-23T07:00:00.000000000",
+        "end": "2026-08-22T07:00:00.000000000"
+      },
+      "baseline_RET": {
+        "n_symbols": 161,
+        "n_bars": 721,
+        "position_mode": "long_short",
+        "fitness_ew_period_sharpe": -1.574486255645752,
+        "fitness_median_period_sharpe": -0.5272228717803955,
+        "median_ann_sharpe": -1.837717056274414,
+        "mean_ann_sharpe": -1.5084730386734009,
+        "ew_ann_sharpe": -5.488116264343262,
+        "ew_period_sharpe": -1.574486255645752,
+        "ew_mean_bar": -0.00018039115821011364,
+        "ew_ann_return": -1.5802265459205955,
+        "ew_sum_bar": -0.1300620436668396,
+        "ew_max_drawdown": -0.16357183456420898,
+        "ew_hit_rate": 0.446601927280426,
+        "mean_pnl": -0.00018039115821011364,
+        "total_trades": 35209.0,
+        "mean_trades_per_symbol": 218.68943786621094,
+        "long_bars": 32934.0,
+        "short_bars": 66801.0,
+        "top5": [
+          {
+            "symbol": "TZAUSDT",
+            "ann_sharpe": 8.393234252929688,
+            "period_sharpe": 2.407935857772827,
+            "mean_pnl": 0.00044127710862085223,
+            "trades": 260.5,
+            "active_bars": 608.0
+          },
+          {
+            "symbol": "IBMUSDT",
+            "ann_sharpe": 6.874697208404541,
+            "period_sharpe": 1.9722826480865479,
+            "mean_pnl": 0.00028695439686998725,
+            "trades": 224.5,
+            "active_bars": 720.0
+          },
+          {
+            "symbol": "SNOWUSDT",
+            "ann_sharpe": 6.560523509979248,
+            "period_sharpe": 1.882149338722229,
+            "mean_pnl": 0.0004587687726598233,
+            "trades": 253.5,
+            "active_bars": 666.0
+          },
+          {
+            "symbol": "LLYUSDT",
+            "ann_sharpe": 5.092118740081787,
+            "period_sharpe": 1.4608784914016724,
+            "mean_pnl": 0.00021980662131682038,
+            "trades": 233.5,
+            "active_bars": 706.0
+          },
+          {
+            "symbol": "KOUSDT",
+            "ann_sharpe": 5.034000396728516,
+            "period_sharpe": 1.4442049264907837,
+            "mean_pnl": 7.674031803617254e-05,
+            "trades": 129.5,
+            "active_bars": 342.0
+          }
+        ],
+        "bottom5": [
+          {
+            "symbol": "SMCIUSDT",
+            "ann_sharpe": -9.804618835449219,
+            "period_sharpe": -2.8128480911254883,
+            "mean_pnl": -0.0009692938765510917,
+            "trades": 226.5,
+            "active_bars": 711.0
+          },
+          {
+            "symbol": "URNMUSDT",
+            "ann_sharpe": -9.33341121673584,
+            "period_sharpe": -2.6776633262634277,
+            "mean_pnl": -0.0004640966944862157,
+            "trades": 263.5,
+            "active_bars": 592.0
+          },
+          {
+            "symbol": "USARUSDT",
+            "ann_sharpe": -9.110331535339355,
+            "period_sharpe": -2.613663911819458,
+            "mean_pnl": -0.0009318432421423495,
+            "trades": 225.5,
+            "active_bars": 719.0
+          },
+          {
+            "symbol": "QNTXUSDT",
+            "ann_sharpe": -8.509979248046875,
+            "period_sharpe": -2.4414288997650146,
+            "mean_pnl": -0.0010322772432118654,
+            "trades": 228.5,
+            "active_bars": 716.0
+          },
+          {
+            "symbol": "BITOUSDT",
+            "ann_sharpe": -8.338204383850098,
+            "period_sharpe": -2.39214825630188,
+            "mean_pnl": -0.00033179527963511646,
+            "trades": 227.5,
+            "active_bars": 417.0
+          }
+        ],
+        "start": "2026-07-23T07:00:00.000000000",
+        "end": "2026-08-22T07:00:00.000000000"
+      },
+      "feature_LIQ": {
+        "n_symbols": 161,
+        "n_bars": 721,
+        "position_mode": "long_short",
+        "fitness_ew_period_sharpe": 0.8759663105010986,
+        "fitness_median_period_sharpe": 0.32977887988090515,
+        "median_ann_sharpe": 1.1494954824447632,
+        "mean_ann_sharpe": 0.9094255566596985,
+        "ew_ann_sharpe": 3.053316593170166,
+        "ew_period_sharpe": 0.8759663105010986,
+        "ew_mean_bar": 0.00010585189738776535,
+        "ew_ann_return": 0.9272626211168244,
+        "ew_sum_bar": 0.07631921768188477,
+        "ew_max_drawdown": -0.05587514117360115,
+        "ew_hit_rate": 0.5381414890289307,
+        "mean_pnl": 0.00010585188283585012,
+        "total_trades": 20593.0,
+        "mean_trades_per_symbol": 127.90682983398438,
+        "long_bars": 78688.0,
+        "short_bars": 21047.0,
+        "top5": [
+          {
+            "symbol": "ANTHROPICUSDT",
+            "ann_sharpe": 8.583087921142578,
+            "period_sharpe": 2.4624030590057373,
+            "mean_pnl": 0.000511118967551738,
+            "trades": 133.5,
+            "active_bars": 717.0
+          },
+          {
+            "symbol": "PAYPUSDT",
+            "ann_sharpe": 6.863089561462402,
+            "period_sharpe": 1.9689524173736572,
+            "mean_pnl": 0.00047679143608547747,
+            "trades": 316.5,
+            "active_bars": 665.0
+          },
+          {
+            "symbol": "BITOUSDT",
+            "ann_sharpe": 5.3742804527282715,
+            "period_sharpe": 1.5418277978897095,
+            "mean_pnl": 0.0002143488818546757,
+            "trades": 137.5,
+            "active_bars": 417.0
+          },
+          {
+            "symbol": "SMHUSDT",
+            "ann_sharpe": 5.033239841461182,
+            "period_sharpe": 1.4439867734909058,
+            "mean_pnl": 0.00023789139231666923,
+            "trades": 106.5,
+            "active_bars": 538.0
+          },
+          {
+            "symbol": "SMCIUSDT",
+            "ann_sharpe": 4.817789077758789,
+            "period_sharpe": 1.3821760416030884,
+            "mean_pnl": 0.00047826700028963387,
+            "trades": 134.5,
+            "active_bars": 711.0
+          }
+        ],
+        "bottom5": [
+          {
+            "symbol": "KUAISHOUUSDT",
+            "ann_sharpe": -5.932808876037598,
+            "period_sharpe": -1.7020641565322876,
+            "mean_pnl": -0.0003848629421554506,
+            "trades": 48.5,
+            "active_bars": 243.0
+          },
+          {
+            "symbol": "MSFTUSDT",
+            "ann_sharpe": -5.739179611206055,
+            "period_sharpe": -1.646513819694519,
+            "mean_pnl": -0.000303292996250093,
+            "trades": 2.5,
+            "active_bars": 721.0
+          },
+          {
+            "symbol": "MEITUANUSDT",
+            "ann_sharpe": -4.931509017944336,
+            "period_sharpe": -1.4148011207580566,
+            "mean_pnl": -0.00019006975344382226,
+            "trades": 47.0,
+            "active_bars": 245.0
+          },
+          {
+            "symbol": "WMTUSDT",
+            "ann_sharpe": -4.664857864379883,
+            "period_sharpe": -1.3383015394210815,
+            "mean_pnl": -0.00019096142204944044,
+            "trades": 159.5,
+            "active_bars": 639.0
+          },
+          {
+            "symbol": "NAVERUSDT",
+            "ann_sharpe": -4.180792808532715,
+            "period_sharpe": -1.1994280815124512,
+            "mean_pnl": -0.00014764103980269283,
+            "trades": 35.5,
+            "active_bars": 162.0
+          }
+        ],
+        "start": "2026-07-23T07:00:00.000000000",
+        "end": "2026-08-22T07:00:00.000000000"
+      },
+      "feature_PRESSURE": {
+        "n_symbols": 161,
+        "n_bars": 721,
+        "position_mode": "long_short",
+        "fitness_ew_period_sharpe": -0.6660588979721069,
+        "fitness_median_period_sharpe": -0.26527145504951477,
+        "median_ann_sharpe": -0.9246448874473572,
+        "mean_ann_sharpe": -1.2151963710784912,
+        "ew_ann_sharpe": -2.3216516971588135,
+        "ew_period_sharpe": -0.6660588979721069,
+        "ew_mean_bar": -7.099760841811076e-05,
+        "ew_ann_return": -0.6219390497426502,
+        "ew_sum_bar": -0.05118928104639053,
+        "ew_max_drawdown": -0.08997272700071335,
+        "ew_hit_rate": 0.44521498680114746,
+        "mean_pnl": -7.099760841811076e-05,
+        "total_trades": 53418.0,
+        "mean_trades_per_symbol": 331.788818359375,
+        "long_bars": 50777.0,
+        "short_bars": 48958.0,
+        "top5": [
+          {
+            "symbol": "SOFIUSDT",
+            "ann_sharpe": 5.127771854400635,
+            "period_sharpe": 1.4711068868637085,
+            "mean_pnl": 0.0003256202326156199,
+            "trades": 327.5,
+            "active_bars": 582.0
+          },
+          {
+            "symbol": "SPCXUSDT",
+            "ann_sharpe": 5.060182571411133,
+            "period_sharpe": 1.4517161846160889,
+            "mean_pnl": 0.0005134433740749955,
+            "trades": 370.5,
+            "active_bars": 721.0
+          },
+          {
+            "symbol": "WDCUSDT",
+            "ann_sharpe": 4.448123455047607,
+            "period_sharpe": 1.2761225700378418,
+            "mean_pnl": 0.0005973952356725931,
+            "trades": 383.5,
+            "active_bars": 721.0
+          },
+          {
+            "symbol": "MSTRUSDT",
+            "ann_sharpe": 4.426558971405029,
+            "period_sharpe": 1.269935965538025,
+            "mean_pnl": 0.00038961225072853267,
+            "trades": 362.5,
+            "active_bars": 721.0
+          },
+          {
+            "symbol": "ADBEUSDT",
+            "ann_sharpe": 4.374115943908691,
+            "period_sharpe": 1.2548905611038208,
+            "mean_pnl": 0.0002624739718157798,
+            "trades": 349.5,
+            "active_bars": 698.0
+          }
+        ],
+        "bottom5": [
+          {
+            "symbol": "FLEXUSDT",
+            "ann_sharpe": -11.260607719421387,
+            "period_sharpe": -3.2305569648742676,
+            "mean_pnl": -0.0010344770271331072,
+            "trades": 351.0,
+            "active_bars": 580.0
+          },
+          {
+            "symbol": "GMEUSDT",
+            "ann_sharpe": -9.54403305053711,
+            "period_sharpe": -2.738088607788086,
+            "mean_pnl": -0.000518007087521255,
+            "trades": 387.5,
+            "active_bars": 665.0
+          },
+          {
+            "symbol": "BBXUSDT",
+            "ann_sharpe": -9.3143310546875,
+            "period_sharpe": -2.672189235687256,
+            "mean_pnl": -0.0006671615410596132,
+            "trades": 396.5,
+            "active_bars": 671.0
+          },
+          {
+            "symbol": "AVGOUSDT",
+            "ann_sharpe": -9.279989242553711,
+            "period_sharpe": -2.662337064743042,
+            "mean_pnl": -0.00047788122901692986,
+            "trades": 375.5,
+            "active_bars": 721.0
+          },
+          {
+            "symbol": "HDUSDT",
+            "ann_sharpe": -8.821442604064941,
+            "period_sharpe": -2.5307843685150146,
+            "mean_pnl": -0.00030950928339734674,
+            "trades": 361.5,
+            "active_bars": 596.0
+          }
+        ],
+        "start": "2026-07-23T07:00:00.000000000",
+        "end": "2026-08-22T07:00:00.000000000"
+      },
+      "feature_VOL_CHG": {
+        "n_symbols": 161,
+        "n_bars": 721,
+        "position_mode": "long_short",
+        "fitness_ew_period_sharpe": -0.34186863899230957,
+        "fitness_median_period_sharpe": -0.1487048864364624,
+        "median_ann_sharpe": -0.5183339715003967,
+        "mean_ann_sharpe": -0.3012157380580902,
+        "ew_ann_sharpe": -1.1916362047195435,
+        "ew_period_sharpe": -0.34186863899230957,
+        "ew_mean_bar": -4.063586311531253e-05,
+        "ew_ann_return": -0.3559701608901378,
+        "ew_sum_bar": -0.029298458248376846,
+        "ew_max_drawdown": -0.09833770990371704,
+        "ew_hit_rate": 0.5256587862968445,
+        "mean_pnl": -4.0635870391270146e-05,
+        "total_trades": 6883.0,
+        "mean_trades_per_symbol": 42.75155258178711,
+        "long_bars": 85550.0,
+        "short_bars": 13161.0,
+        "top5": [
+          {
+            "symbol": "ZMUSDT",
+            "ann_sharpe": 6.645155429840088,
+            "period_sharpe": 1.9064292907714844,
+            "mean_pnl": 0.0003283563128206879,
+            "trades": 39.5,
+            "active_bars": 665.0
+          },
+          {
+            "symbol": "BITOUSDT",
+            "ann_sharpe": 6.040446758270264,
+            "period_sharpe": 1.7329444885253906,
+            "mean_pnl": 0.00023670203518122435,
+            "trades": 95.5,
+            "active_bars": 411.0
+          },
+          {
+            "symbol": "STRCUSDT",
+            "ann_sharpe": 5.834135055541992,
+            "period_sharpe": 1.6737556457519531,
+            "mean_pnl": 0.0001374479033984244,
+            "trades": 19.5,
+            "active_bars": 698.0
+          },
+          {
+            "symbol": "ADBEUSDT",
+            "ann_sharpe": 5.776823043823242,
+            "period_sharpe": 1.657313346862793,
+            "mean_pnl": 0.0003388439363334328,
+            "trades": 24.5,
+            "active_bars": 691.0
+          },
+          {
+            "symbol": "GDXUSDT",
+            "ann_sharpe": 5.722642421722412,
+            "period_sharpe": 1.641769528388977,
+            "mean_pnl": 0.0001590788597241044,
+            "trades": 2.0,
+            "active_bars": 111.0
+          }
+        ],
+        "bottom5": [
+          {
+            "symbol": "NVDAUSDT",
+            "ann_sharpe": -10.587446212768555,
+            "period_sharpe": -3.037433385848999,
+            "mean_pnl": -0.0004358282603789121,
+            "trades": 106.5,
+            "active_bars": 714.0
+          },
+          {
+            "symbol": "PAYPUSDT",
+            "ann_sharpe": -7.0341057777404785,
+            "period_sharpe": -2.0180153846740723,
+            "mean_pnl": -0.00048290344420820475,
+            "trades": 205.5,
+            "active_bars": 658.0
+          },
+          {
+            "symbol": "AVGOUSDT",
+            "ann_sharpe": -6.47191858291626,
+            "period_sharpe": -1.8567293882369995,
+            "mean_pnl": -0.00032790726982057095,
+            "trades": 208.5,
+            "active_bars": 714.0
+          },
+          {
+            "symbol": "UNITREEUSDT",
+            "ann_sharpe": -5.46307897567749,
+            "period_sharpe": -1.56730318069458,
+            "mean_pnl": -0.00034062331542372704,
+            "trades": 0.5,
+            "active_bars": 78.0
+          },
+          {
+            "symbol": "QQQUSDT",
+            "ann_sharpe": -5.352489471435547,
+            "period_sharpe": -1.535576343536377,
+            "mean_pnl": -0.00013709034828934819,
+            "trades": 93.5,
+            "active_bars": 714.0
+          }
+        ],
+        "start": "2026-07-23T07:00:00.000000000",
+        "end": "2026-08-22T07:00:00.000000000"
+      },
+      "feature_DEV": {
+        "n_symbols": 161,
+        "n_bars": 721,
+        "position_mode": "long_short",
+        "fitness_ew_period_sharpe": -0.430412620306015,
+        "fitness_median_period_sharpe": -0.20837056636810303,
+        "median_ann_sharpe": -0.7263079881668091,
+        "mean_ann_sharpe": -0.9090860486030579,
+        "ew_ann_sharpe": -1.5002700090408325,
+        "ew_period_sharpe": -0.430412620306015,
+        "ew_mean_bar": -4.5979759306646883e-05,
+        "ew_ann_return": -0.4027826915262267,
+        "ew_sum_bar": -0.033151403069496155,
+        "ew_max_drawdown": -0.08564916253089905,
+        "ew_hit_rate": 0.4687933325767517,
+        "mean_pnl": -4.597974111675285e-05,
+        "total_trades": 14720.0,
+        "mean_trades_per_symbol": 91.42857360839844,
+        "long_bars": 51341.0,
+        "short_bars": 48394.0,
+        "top5": [
+          {
+            "symbol": "USARUSDT",
+            "ann_sharpe": 7.456247806549072,
+            "period_sharpe": 2.1391236782073975,
+            "mean_pnl": 0.0007638426031917334,
+            "trades": 64.5,
+            "active_bars": 719.0
+          },
+          {
+            "symbol": "DISUSDT",
+            "ann_sharpe": 7.37705135345459,
+            "period_sharpe": 2.116403102874756,
+            "mean_pnl": 0.00023357865575235337,
+            "trades": 132.5,
+            "active_bars": 624.0
+          },
+          {
+            "symbol": "HYUNDAIUSDT",
+            "ann_sharpe": 6.19626522064209,
+            "period_sharpe": 1.7776471376419067,
+            "mean_pnl": 0.0004409993998706341,
+            "trades": 70.5,
+            "active_bars": 711.0
+          },
+          {
+            "symbol": "TMFUSDT",
+            "ann_sharpe": 6.119793891906738,
+            "period_sharpe": 1.7557083368301392,
+            "mean_pnl": 0.00021667273540515453,
+            "trades": 103.5,
+            "active_bars": 477.0
+          },
+          {
+            "symbol": "CSOPSAMSUNG2LUSDT",
+            "ann_sharpe": 5.0388102531433105,
+            "period_sharpe": 1.445584774017334,
+            "mean_pnl": 0.0004982991958968341,
+            "trades": 18.5,
+            "active_bars": 267.0
+          }
+        ],
+        "bottom5": [
+          {
+            "symbol": "POPMARTUSDT",
+            "ann_sharpe": -9.05066967010498,
+            "period_sharpe": -2.5965476036071777,
+            "mean_pnl": -0.0005329070845618844,
+            "trades": 111.5,
+            "active_bars": 667.0
+          },
+          {
+            "symbol": "XBIUSDT",
+            "ann_sharpe": -9.006630897521973,
+            "period_sharpe": -2.5839133262634277,
+            "mean_pnl": -0.0003277207142673433,
+            "trades": 163.5,
+            "active_bars": 528.0
+          },
+          {
+            "symbol": "JPMUSDT",
+            "ann_sharpe": -8.824202537536621,
+            "period_sharpe": -2.53157639503479,
+            "mean_pnl": -0.00021833984646946192,
+            "trades": 127.5,
+            "active_bars": 669.0
+          },
+          {
+            "symbol": "KOUSDT",
+            "ann_sharpe": -8.601469993591309,
+            "period_sharpe": -2.4676764011383057,
+            "mean_pnl": -0.00013076222967356443,
+            "trades": 83.5,
+            "active_bars": 342.0
+          },
+          {
+            "symbol": "FWDIUSDT",
+            "ann_sharpe": -8.513957023620605,
+            "period_sharpe": -2.4425699710845947,
+            "mean_pnl": -0.0009424355812370777,
+            "trades": 131.5,
+            "active_bars": 686.0
+          }
+        ],
+        "start": "2026-07-23T07:00:00.000000000",
+        "end": "2026-08-22T07:00:00.000000000"
+      },
+      "feature_LOG_VOL": {
+        "n_symbols": 161,
+        "n_bars": 721,
+        "position_mode": "long_short",
+        "fitness_ew_period_sharpe": -0.014225631952285767,
+        "fitness_median_period_sharpe": -0.0010726087493821979,
+        "median_ann_sharpe": -0.0037387441843748093,
+        "mean_ann_sharpe": 0.16690894961357117,
+        "ew_ann_sharpe": -0.049585647881031036,
+        "ew_period_sharpe": -0.014225631952285767,
+        "ew_mean_bar": -1.5364420278274338e-06,
+        "ew_ann_return": -0.01345923216376832,
+        "ew_sum_bar": -0.0011077694362029433,
+        "ew_max_drawdown": -0.08498450368642807,
+        "ew_hit_rate": 0.5284327268600464,
+        "mean_pnl": -1.5364396404038416e-06,
+        "total_trades": 3401.0,
+        "mean_trades_per_symbol": 21.124223709106445,
+        "long_bars": 83233.0,
+        "short_bars": 16502.0,
+        "top5": [
+          {
+            "symbol": "ZMUSDT",
+            "ann_sharpe": 6.161797523498535,
+            "period_sharpe": 1.7677587270736694,
+            "mean_pnl": 0.00030681106727570295,
+            "trades": 33.5,
+            "active_bars": 672.0
+          },
+          {
+            "symbol": "STRCUSDT",
+            "ann_sharpe": 6.059237957000732,
+            "period_sharpe": 1.738335371017456,
+            "mean_pnl": 0.0001462333311792463,
+            "trades": 13.5,
+            "active_bars": 705.0
+          },
+          {
+            "symbol": "BITOUSDT",
+            "ann_sharpe": 5.94252347946167,
+            "period_sharpe": 1.7048511505126953,
+            "mean_pnl": 0.00023692601826041937,
+            "trades": 92.5,
+            "active_bars": 417.0
+          },
+          {
+            "symbol": "GDXUSDT",
+            "ann_sharpe": 5.887058734893799,
+            "period_sharpe": 1.688938856124878,
+            "mean_pnl": 0.00016403364134021103,
+            "trades": 2.0,
+            "active_bars": 113.0
+          },
+          {
+            "symbol": "ANTHROPICUSDT",
+            "ann_sharpe": 5.873026371002197,
+            "period_sharpe": 1.684913158416748,
+            "mean_pnl": 0.0003505152417346835,
+            "trades": 2.5,
+            "active_bars": 717.0
+          }
+        ],
+        "bottom5": [
+          {
+            "symbol": "MSFTUSDT",
+            "ann_sharpe": -5.765289783477783,
+            "period_sharpe": -1.6540045738220215,
+            "mean_pnl": -0.00030466759926639497,
+            "trades": 0.5,
+            "active_bars": 721.0
+          },
+          {
+            "symbol": "UNITREEUSDT",
+            "ann_sharpe": -5.46307897567749,
+            "period_sharpe": -1.56730318069458,
+            "mean_pnl": -0.00034062331542372704,
+            "trades": 0.5,
+            "active_bars": 78.0
+          },
+          {
+            "symbol": "KUAISHOUUSDT",
+            "ann_sharpe": -5.202334880828857,
+            "period_sharpe": -1.4924982786178589,
+            "mean_pnl": -0.0003376332751940936,
+            "trades": 21.5,
+            "active_bars": 243.0
+          },
+          {
+            "symbol": "PLTRUSDT",
+            "ann_sharpe": -5.076677322387695,
+            "period_sharpe": -1.4564485549926758,
+            "mean_pnl": -0.00044011350837536156,
+            "trades": 8.5,
+            "active_bars": 721.0
+          },
+          {
+            "symbol": "VSTUSDT",
+            "ann_sharpe": -4.959264755249023,
+            "period_sharpe": -1.4227640628814697,
+            "mean_pnl": -0.00010154784831684083,
+            "trades": 3.0,
+            "active_bars": 112.0
+          }
+        ],
+        "start": "2026-07-23T07:00:00.000000000",
+        "end": "2026-08-22T07:00:00.000000000"
+      }
+    },
+    "test_14d": {
+      "name": "test_14d",
+      "n_bars": 337,
+      "start": "2026-08-08T07:00:00.000000000",
+      "end": "2026-08-22T07:00:00.000000000",
+      "best": {
+        "n_symbols": 161,
+        "n_bars": 337,
+        "position_mode": "long_short",
+        "fitness_ew_period_sharpe": -1.25589919090271,
+        "fitness_median_period_sharpe": -0.42467278242111206,
+        "median_ann_sharpe": -2.1651675701141357,
+        "mean_ann_sharpe": -1.7909526824951172,
+        "ew_ann_sharpe": -6.40312385559082,
+        "ew_period_sharpe": -1.25589919090271,
+        "ew_mean_bar": -0.00015729035658296198,
+        "ew_ann_return": -1.377863523666747,
+        "ew_sum_bar": -0.0530068576335907,
+        "ew_max_drawdown": -0.06917928904294968,
+        "ew_hit_rate": 0.44510385394096375,
+        "mean_pnl": -0.0001572903711348772,
+        "total_trades": 8356.0,
+        "mean_trades_per_symbol": 51.90061950683594,
+        "long_bars": 11342.0,
+        "short_bars": 37331.0,
+        "top5": [
+          {
+            "symbol": "PANWUSDT",
+            "ann_sharpe": 6.834864139556885,
+            "period_sharpe": 1.3405801057815552,
+            "mean_pnl": 0.00036278757033869624,
+            "trades": 67.5,
+            "active_bars": 284.0
+          },
+          {
+            "symbol": "KUAISHOUUSDT",
+            "ann_sharpe": 5.934717655181885,
+            "period_sharpe": 1.1640267372131348,
+            "mean_pnl": 0.000563560170121491,
+            "trades": 51.5,
+            "active_bars": 243.0
+          },
+          {
+            "symbol": "KOUSDT",
+            "ann_sharpe": 5.917430400848389,
+            "period_sharpe": 1.160636067390442,
+            "mean_pnl": 0.00012246206460986286,
+            "trades": 64.5,
+            "active_bars": 296.0
+          },
+          {
+            "symbol": "HIMSUSDT",
+            "ann_sharpe": 5.900876998901367,
+            "period_sharpe": 1.1573892831802368,
+            "mean_pnl": 0.0005566307227127254,
+            "trades": 51.5,
+            "active_bars": 325.0
+          },
+          {
+            "symbol": "HDUSDT",
+            "ann_sharpe": 5.852077484130859,
+            "period_sharpe": 1.147817850112915,
+            "mean_pnl": 0.00021851295605301857,
+            "trades": 80.5,
+            "active_bars": 263.0
+          }
+        ],
+        "bottom5": [
+          {
+            "symbol": "AMZNUSDT",
+            "ann_sharpe": -14.931215286254883,
+            "period_sharpe": -2.92858624458313,
+            "mean_pnl": -0.0004472169675864279,
+            "trades": 96.5,
+            "active_bars": 337.0
+          },
+          {
+            "symbol": "SAMSUNGUSDT",
+            "ann_sharpe": -12.540815353393555,
+            "period_sharpe": -2.4597368240356445,
+            "mean_pnl": -0.0009738864609971642,
+            "trades": 41.5,
+            "active_bars": 337.0
+          },
+          {
+            "symbol": "SKHYUSDT",
+            "ann_sharpe": -11.770875930786133,
+            "period_sharpe": -2.3087222576141357,
+            "mean_pnl": -0.0010377875296398997,
+            "trades": 41.5,
+            "active_bars": 337.0
+          },
+          {
+            "symbol": "KORUUSDT",
+            "ann_sharpe": -11.533756256103516,
+            "period_sharpe": -2.262213945388794,
+            "mean_pnl": -0.001723199849948287,
+            "trades": 41.5,
+            "active_bars": 337.0
+          },
+          {
+            "symbol": "SKHYNIXUSDT",
+            "ann_sharpe": -11.465300559997559,
+            "period_sharpe": -2.2487869262695312,
+            "mean_pnl": -0.0010714387753978372,
+            "trades": 41.5,
+            "active_bars": 337.0
+          }
+        ],
+        "start": "2026-08-08T07:00:00.000000000",
+        "end": "2026-08-22T07:00:00.000000000"
+      },
+      "baseline_RET": {
+        "n_symbols": 161,
+        "n_bars": 337,
+        "position_mode": "long_short",
+        "fitness_ew_period_sharpe": -1.1855112314224243,
+        "fitness_median_period_sharpe": -0.33293643593788147,
+        "median_ann_sharpe": -1.697455644607544,
+        "mean_ann_sharpe": -1.632285714149475,
+        "ew_ann_sharpe": -6.044255256652832,
+        "ew_period_sharpe": -1.1855112314224243,
+        "ew_mean_bar": -0.00014730027760379016,
+        "ew_ann_return": -1.2903504318092018,
+        "ew_sum_bar": -0.049640193581581116,
+        "ew_max_drawdown": -0.0682370588183403,
+        "ew_hit_rate": 0.4302670657634735,
+        "mean_pnl": -0.00014730026305187494,
+        "total_trades": 15697.0,
+        "mean_trades_per_symbol": 97.49689483642578,
+        "long_bars": 14529.0,
+        "short_bars": 34144.0,
+        "top5": [
+          {
+            "symbol": "CRCLUSDT",
+            "ann_sharpe": 10.018247604370117,
+            "period_sharpe": 1.9649641513824463,
+            "mean_pnl": 0.0009490175289101899,
+            "trades": 158.5,
+            "active_bars": 337.0
+          },
+          {
+            "symbol": "CRWDUSDT",
+            "ann_sharpe": 9.066707611083984,
+            "period_sharpe": 1.778330683708191,
+            "mean_pnl": 0.0005501443520188332,
+            "trades": 91.5,
+            "active_bars": 336.0
+          },
+          {
+            "symbol": "MSTRUSDT",
+            "ann_sharpe": 8.945769309997559,
+            "period_sharpe": 1.7546099424362183,
+            "mean_pnl": 0.0008442102116532624,
+            "trades": 171.5,
+            "active_bars": 337.0
+          },
+          {
+            "symbol": "KOUSDT",
+            "ann_sharpe": 8.373612403869629,
+            "period_sharpe": 1.642387866973877,
+            "mean_pnl": 0.0001729472860461101,
+            "trades": 111.5,
+            "active_bars": 296.0
+          },
+          {
+            "symbol": "PYPLUSDT",
+            "ann_sharpe": 7.917433738708496,
+            "period_sharpe": 1.5529136657714844,
+            "mean_pnl": 0.0003226466360501945,
+            "trades": 105.5,
+            "active_bars": 279.0
+          }
+        ],
+        "bottom5": [
+          {
+            "symbol": "IRENUSDT",
+            "ann_sharpe": -13.705536842346191,
+            "period_sharpe": -2.688183546066284,
+            "mean_pnl": -0.001613081432878971,
+            "trades": 90.5,
+            "active_bars": 337.0
+          },
+          {
+            "symbol": "SMCIUSDT",
+            "ann_sharpe": -12.189292907714844,
+            "period_sharpe": -2.3907899856567383,
+            "mean_pnl": -0.0012194246519356966,
+            "trades": 92.5,
+            "active_bars": 334.0
+          },
+          {
+            "symbol": "AMZNUSDT",
+            "ann_sharpe": -11.333094596862793,
+            "period_sharpe": -2.2228565216064453,
+            "mean_pnl": -0.0003412517544347793,
+            "trades": 193.5,
+            "active_bars": 337.0
+          },
+          {
+            "symbol": "BITOUSDT",
+            "ann_sharpe": -11.187398910522461,
+            "period_sharpe": -2.194279670715332,
+            "mean_pnl": -0.0005355626926757395,
+            "trades": 117.5,
+            "active_bars": 215.0
+          },
+          {
+            "symbol": "URNMUSDT",
+            "ann_sharpe": -10.467053413391113,
+            "period_sharpe": -2.052992343902588,
+            "mean_pnl": -0.0004953811294399202,
+            "trades": 117.5,
+            "active_bars": 267.0
+          }
+        ],
+        "start": "2026-08-08T07:00:00.000000000",
+        "end": "2026-08-22T07:00:00.000000000"
+      },
+      "feature_LIQ": {
+        "n_symbols": 161,
+        "n_bars": 337,
+        "position_mode": "long_short",
+        "fitness_ew_period_sharpe": 0.7263703942298889,
+        "fitness_median_period_sharpe": 0.2331957072019577,
+        "median_ann_sharpe": 1.1889337301254272,
+        "mean_ann_sharpe": 0.9835264086723328,
+        "ew_ann_sharpe": 3.7033541202545166,
+        "ew_period_sharpe": 0.7263703942298889,
+        "ew_mean_bar": 9.193966980092227e-05,
+        "ew_ann_return": 0.8053915074560791,
+        "ew_sum_bar": 0.03098367154598236,
+        "ew_max_drawdown": -0.04850295931100845,
+        "ew_hit_rate": 0.5489614009857178,
+        "mean_pnl": 9.193966980092227e-05,
+        "total_trades": 8246.0,
+        "mean_trades_per_symbol": 51.21739196777344,
+        "long_bars": 39888.0,
+        "short_bars": 8785.0,
+        "top5": [
+          {
+            "symbol": "ANTHROPICUSDT",
+            "ann_sharpe": 18.539779663085938,
+            "period_sharpe": 3.636364698410034,
+            "mean_pnl": 0.0010193955386057496,
+            "trades": 45.5,
+            "active_bars": 334.0
+          },
+          {
+            "symbol": "XLEUSDT",
+            "ann_sharpe": 11.744024276733398,
+            "period_sharpe": 2.3034555912017822,
+            "mean_pnl": 0.00028059742180630565,
+            "trades": 55.5,
+            "active_bars": 319.0
+          },
+          {
+            "symbol": "BITOUSDT",
+            "ann_sharpe": 11.49400806427002,
+            "period_sharpe": 2.254417657852173,
+            "mean_pnl": 0.0005500248516909778,
+            "trades": 66.5,
+            "active_bars": 215.0
+          },
+          {
+            "symbol": "SNXXUSDT",
+            "ann_sharpe": 9.50872802734375,
+            "period_sharpe": 1.865027904510498,
+            "mean_pnl": 0.0021244739182293415,
+            "trades": 44.5,
+            "active_bars": 337.0
+          },
+          {
+            "symbol": "AVGOUSDT",
+            "ann_sharpe": 9.309700012207031,
+            "period_sharpe": 1.8259907960891724,
+            "mean_pnl": 0.0004389131208881736,
+            "trades": 6.5,
+            "active_bars": 337.0
+          }
+        ],
+        "bottom5": [
+          {
+            "symbol": "COINUSDT",
+            "ann_sharpe": -9.317176818847656,
+            "period_sharpe": -1.8274571895599365,
+            "mean_pnl": -0.0006988710956647992,
+            "trades": 114.5,
+            "active_bars": 337.0
+          },
+          {
+            "symbol": "KUAISHOUUSDT",
+            "ann_sharpe": -8.690949440002441,
+            "period_sharpe": -1.704629898071289,
+            "mean_pnl": -0.0008234012057073414,
+            "trades": 48.5,
+            "active_bars": 243.0
+          },
+          {
+            "symbol": "APPUSDT",
+            "ann_sharpe": -8.403518676757812,
+            "period_sharpe": -1.6482535600662231,
+            "mean_pnl": -0.00040325464215129614,
+            "trades": 46.5,
+            "active_bars": 326.0
+          },
+          {
+            "symbol": "SNDKUSDT",
+            "ann_sharpe": -7.26840353012085,
+            "period_sharpe": -1.4256138801574707,
+            "mean_pnl": -0.0008229205850511789,
+            "trades": 0.5,
+            "active_bars": 337.0
+          },
+          {
+            "symbol": "MEITUANUSDT",
+            "ann_sharpe": -7.219014644622803,
+            "period_sharpe": -1.4159268140792847,
+            "mean_pnl": -0.0004066477413289249,
+            "trades": 47.0,
+            "active_bars": 245.0
+          }
+        ],
+        "start": "2026-08-08T07:00:00.000000000",
+        "end": "2026-08-22T07:00:00.000000000"
+      },
+      "feature_PRESSURE": {
+        "n_symbols": 161,
+        "n_bars": 337,
+        "position_mode": "long_short",
+        "fitness_ew_period_sharpe": -1.1156110763549805,
+        "fitness_median_period_sharpe": -0.43310871720314026,
+        "median_ann_sharpe": -2.2081778049468994,
+        "mean_ann_sharpe": -1.8608087301254272,
+        "ew_ann_sharpe": -5.687873363494873,
+        "ew_period_sharpe": -1.1156110763549805,
+        "ew_mean_bar": -0.00011352037108736113,
+        "ew_ann_return": -0.9944384507252835,
+        "ew_sum_bar": -0.03825635835528374,
+        "ew_max_drawdown": -0.04040166363120079,
+        "ew_hit_rate": 0.4302670657634735,
+        "mean_pnl": -0.0001135203565354459,
+        "total_trades": 26253.0,
+        "mean_trades_per_symbol": 163.06211853027344,
+        "long_bars": 24773.0,
+        "short_bars": 23900.0,
+        "top5": [
+          {
+            "symbol": "MSTRUSDT",
+            "ann_sharpe": 10.167253494262695,
+            "period_sharpe": 1.994189977645874,
+            "mean_pnl": 0.0009582131751812994,
+            "trades": 165.5,
+            "active_bars": 337.0
+          },
+          {
+            "symbol": "CRCLUSDT",
+            "ann_sharpe": 9.577744483947754,
+            "period_sharpe": 1.8785645961761475,
+            "mean_pnl": 0.0009077327558770776,
+            "trades": 163.5,
+            "active_bars": 337.0
+          },
+          {
+            "symbol": "BITOUSDT",
+            "ann_sharpe": 9.323343276977539,
+            "period_sharpe": 1.8286668062210083,
+            "mean_pnl": 0.0004472929867915809,
+            "trades": 122.5,
+            "active_bars": 215.0
+          },
+          {
+            "symbol": "TBTUSDT",
+            "ann_sharpe": 9.319132804870605,
+            "period_sharpe": 1.8278409242630005,
+            "mean_pnl": 0.0002239032182842493,
+            "trades": 108.5,
+            "active_bars": 176.0
+          },
+          {
+            "symbol": "FWDIUSDT",
+            "ann_sharpe": 7.804187297821045,
+            "period_sharpe": 1.5307016372680664,
+            "mean_pnl": 0.0008945143781602383,
+            "trades": 168.5,
+            "active_bars": 319.0
+          }
+        ],
+        "bottom5": [
+          {
+            "symbol": "BBXUSDT",
+            "ann_sharpe": -15.413213729858398,
+            "period_sharpe": -3.023124933242798,
+            "mean_pnl": -0.0009237503982149065,
+            "trades": 191.5,
+            "active_bars": 308.0
+          },
+          {
+            "symbol": "HDUSDT",
+            "ann_sharpe": -14.402665138244629,
+            "period_sharpe": -2.8249173164367676,
+            "mean_pnl": -0.000532552832737565,
+            "trades": 165.5,
+            "active_bars": 263.0
+          },
+          {
+            "symbol": "UVXYUSDT",
+            "ann_sharpe": -14.345586776733398,
+            "period_sharpe": -2.8137221336364746,
+            "mean_pnl": -0.0006149925175122917,
+            "trades": 192.5,
+            "active_bars": 332.0
+          },
+          {
+            "symbol": "IRENUSDT",
+            "ann_sharpe": -13.21981143951416,
+            "period_sharpe": -2.59291410446167,
+            "mean_pnl": -0.0015570555115118623,
+            "trades": 175.5,
+            "active_bars": 337.0
+          },
+          {
+            "symbol": "CATUSDT",
+            "ann_sharpe": -12.075757026672363,
+            "period_sharpe": -2.368521213531494,
+            "mean_pnl": -0.0005325693055056036,
+            "trades": 179.5,
+            "active_bars": 300.0
+          }
+        ],
+        "start": "2026-08-08T07:00:00.000000000",
+        "end": "2026-08-22T07:00:00.000000000"
+      },
+      "feature_VOL_CHG": {
+        "n_symbols": 161,
+        "n_bars": 337,
+        "position_mode": "long_short",
+        "fitness_ew_period_sharpe": -0.371684193611145,
+        "fitness_median_period_sharpe": -0.26280447840690613,
+        "median_ann_sharpe": -1.3398922681808472,
+        "mean_ann_sharpe": -0.7326245903968811,
+        "ew_ann_sharpe": -1.8950086832046509,
+        "ew_period_sharpe": -0.371684193611145,
+        "ew_mean_bar": -4.730325599666685e-05,
+        "ew_ann_return": -0.4143765225308016,
+        "ew_sum_bar": -0.01594119518995285,
+        "ew_max_drawdown": -0.052534069865942,
+        "ew_hit_rate": 0.5311572551727295,
+        "mean_pnl": -4.730326327262446e-05,
+        "total_trades": 3415.0,
+        "mean_trades_per_symbol": 21.211179733276367,
+        "long_bars": 41934.0,
+        "short_bars": 6130.0,
+        "top5": [
+          {
+            "symbol": "ANTHROPICUSDT",
+            "ann_sharpe": 14.18419075012207,
+            "period_sharpe": 2.7820661067962646,
+            "mean_pnl": 0.0007849148823879659,
+            "trades": 4.5,
+            "active_bars": 330.0
+          },
+          {
+            "symbol": "XLEUSDT",
+            "ann_sharpe": 13.436469078063965,
+            "period_sharpe": 2.635409116744995,
+            "mean_pnl": 0.00032007505069486797,
+            "trades": 19.5,
+            "active_bars": 315.0
+          },
+          {
+            "symbol": "BITOUSDT",
+            "ann_sharpe": 12.741979598999023,
+            "period_sharpe": 2.499192953109741,
+            "mean_pnl": 0.0006053466931916773,
+            "trades": 53.5,
+            "active_bars": 211.0
+          },
+          {
+            "symbol": "GDXUSDT",
+            "ann_sharpe": 8.38174057006836,
+            "period_sharpe": 1.643982172012329,
+            "mean_pnl": 0.00034034380223602057,
+            "trades": 2.0,
+            "active_bars": 111.0
+          },
+          {
+            "symbol": "BNCUSDT",
+            "ann_sharpe": 7.219228744506836,
+            "period_sharpe": 1.4159687757492065,
+            "mean_pnl": 0.0008471091859973967,
+            "trades": 28.5,
+            "active_bars": 292.0
+          }
+        ],
+        "bottom5": [
+          {
+            "symbol": "AVGOUSDT",
+            "ann_sharpe": -9.56187629699707,
+            "period_sharpe": -1.8754522800445557,
+            "mean_pnl": -0.0004455388698261231,
+            "trades": 85.5,
+            "active_bars": 333.0
+          },
+          {
+            "symbol": "HOODUSDT",
+            "ann_sharpe": -9.22106647491455,
+            "period_sharpe": -1.8086062669754028,
+            "mean_pnl": -0.0006966962246224284,
+            "trades": 41.5,
+            "active_bars": 333.0
+          },
+          {
+            "symbol": "APPUSDT",
+            "ann_sharpe": -8.74465274810791,
+            "period_sharpe": -1.7151631116867065,
+            "mean_pnl": -0.00041465001413598657,
+            "trades": 10.5,
+            "active_bars": 322.0
+          },
+          {
+            "symbol": "UVXYUSDT",
+            "ann_sharpe": -8.429157257080078,
+            "period_sharpe": -1.6532824039459229,
+            "mean_pnl": -0.00036091115907765925,
+            "trades": 6.5,
+            "active_bars": 328.0
+          },
+          {
+            "symbol": "COHRUSDT",
+            "ann_sharpe": -8.012933731079102,
+            "period_sharpe": -1.5716450214385986,
+            "mean_pnl": -0.0010540597140789032,
+            "trades": 3.5,
+            "active_bars": 333.0
+          }
+        ],
+        "start": "2026-08-08T07:00:00.000000000",
+        "end": "2026-08-22T07:00:00.000000000"
+      },
+      "feature_DEV": {
+        "n_symbols": 161,
+        "n_bars": 337,
+        "position_mode": "long_short",
+        "fitness_ew_period_sharpe": -0.6418002843856812,
+        "fitness_median_period_sharpe": -0.2838154733181,
+        "median_ann_sharpe": -1.447015404701233,
+        "mean_ann_sharpe": -1.152909517288208,
+        "ew_ann_sharpe": -3.2721786499023438,
+        "ew_period_sharpe": -0.6418002843856812,
+        "ew_mean_bar": -7.019795884843916e-05,
+        "ew_ann_return": -0.614934119512327,
+        "ew_sum_bar": -0.023656709119677544,
+        "ew_max_drawdown": -0.05639186128973961,
+        "ew_hit_rate": 0.44510385394096375,
+        "mean_pnl": -7.019794429652393e-05,
+        "total_trades": 7392.0,
+        "mean_trades_per_symbol": 45.91304397583008,
+        "long_bars": 24488.0,
+        "short_bars": 24185.0,
+        "top5": [
+          {
+            "symbol": "SAMSUNGUSDT",
+            "ann_sharpe": 12.637002944946289,
+            "period_sharpe": 2.478602886199951,
+            "mean_pnl": 0.0009812226053327322,
+            "trades": 21.5,
+            "active_bars": 337.0
+          },
+          {
+            "symbol": "EWYUSDT",
+            "ann_sharpe": 12.363673210144043,
+            "period_sharpe": 2.424992561340332,
+            "mean_pnl": 0.000632047129329294,
+            "trades": 29.5,
+            "active_bars": 337.0
+          },
+          {
+            "symbol": "ANTHROPICUSDT",
+            "ann_sharpe": 11.998616218566895,
+            "period_sharpe": 2.35339093208313,
+            "mean_pnl": 0.0006671155570074916,
+            "trades": 25.5,
+            "active_bars": 334.0
+          },
+          {
+            "symbol": "TMFUSDT",
+            "ann_sharpe": 10.191652297973633,
+            "period_sharpe": 1.9989756345748901,
+            "mean_pnl": 0.00031848816433921456,
+            "trades": 49.5,
+            "active_bars": 241.0
+          },
+          {
+            "symbol": "LLYUSDT",
+            "ann_sharpe": 9.567081451416016,
+            "period_sharpe": 1.8764731884002686,
+            "mean_pnl": 0.0003661534865386784,
+            "trades": 39.5,
+            "active_bars": 332.0
+          }
+        ],
+        "bottom5": [
+          {
+            "symbol": "JPMUSDT",
+            "ann_sharpe": -12.00572681427002,
+            "period_sharpe": -2.354785442352295,
+            "mean_pnl": -0.0002669482200872153,
+            "trades": 55.5,
+            "active_bars": 321.0
+          },
+          {
+            "symbol": "QCOMUSDT",
+            "ann_sharpe": -11.651193618774414,
+            "period_sharpe": -2.285247802734375,
+            "mean_pnl": -0.00047064953832887113,
+            "trades": 59.5,
+            "active_bars": 335.0
+          },
+          {
+            "symbol": "MEITUANUSDT",
+            "ann_sharpe": -11.52125358581543,
+            "period_sharpe": -2.2597615718841553,
+            "mean_pnl": -0.0006460358272306621,
+            "trades": 50.0,
+            "active_bars": 245.0
+          },
+          {
+            "symbol": "BNCUSDT",
+            "ann_sharpe": -9.646064758300781,
+            "period_sharpe": -1.8919647932052612,
+            "mean_pnl": -0.0011347421677783132,
+            "trades": 76.5,
+            "active_bars": 296.0
+          },
+          {
+            "symbol": "KSTRUSDT",
+            "ann_sharpe": -9.54616928100586,
+            "period_sharpe": -1.8723714351654053,
+            "mean_pnl": -0.00042377959471195936,
+            "trades": 63.5,
+            "active_bars": 294.0
+          }
+        ],
+        "start": "2026-08-08T07:00:00.000000000",
+        "end": "2026-08-22T07:00:00.000000000"
+      },
+      "feature_LOG_VOL": {
+        "n_symbols": 161,
+        "n_bars": 337,
+        "position_mode": "long_short",
+        "fitness_ew_period_sharpe": -0.20535171031951904,
+        "fitness_median_period_sharpe": -0.05405200272798538,
+        "median_ann_sharpe": -0.2755807638168335,
+        "mean_ann_sharpe": -0.21505270898342133,
+        "ew_ann_sharpe": -1.0469728708267212,
+        "ew_period_sharpe": -0.20535171031951904,
+        "ew_mean_bar": -2.419928932795301e-05,
+        "ew_ann_return": -0.21198577451286837,
+        "ew_sum_bar": -0.008155160583555698,
+        "ew_max_drawdown": -0.05260850116610527,
+        "ew_hit_rate": 0.5400593280792236,
+        "mean_pnl": -2.4199312974815257e-05,
+        "total_trades": 1800.0,
+        "mean_trades_per_symbol": 11.180124282836914,
+        "long_bars": 40970.0,
+        "short_bars": 7703.0,
+        "top5": [
+          {
+            "symbol": "ANTHROPICUSDT",
+            "ann_sharpe": 14.021333694458008,
+            "period_sharpe": 2.7501235008239746,
+            "mean_pnl": 0.0007772767567075789,
+            "trades": 1.5,
+            "active_bars": 334.0
+          },
+          {
+            "symbol": "XLEUSDT",
+            "ann_sharpe": 13.593372344970703,
+            "period_sharpe": 2.6661839485168457,
+            "mean_pnl": 0.00032392918365076184,
+            "trades": 16.5,
+            "active_bars": 319.0
+          },
+          {
+            "symbol": "BITOUSDT",
+            "ann_sharpe": 12.66881275177002,
+            "period_sharpe": 2.48484206199646,
+            "mean_pnl": 0.0006052748067304492,
+            "trades": 51.5,
+            "active_bars": 215.0
+          },
+          {
+            "symbol": "AVGOUSDT",
+            "ann_sharpe": 9.335837364196777,
+            "period_sharpe": 1.8311172723770142,
+            "mean_pnl": 0.00044013324077241123,
+            "trades": 0.5,
+            "active_bars": 337.0
+          },
+          {
+            "symbol": "GDXUSDT",
+            "ann_sharpe": 8.623631477355957,
+            "period_sharpe": 1.6914262771606445,
+            "mean_pnl": 0.00035094437771476805,
+            "trades": 2.0,
+            "active_bars": 113.0
+          }
+        ],
+        "bottom5": [
+          {
+            "symbol": "APPUSDT",
+            "ann_sharpe": -9.591694831848145,
+            "period_sharpe": -1.8813008069992065,
+            "mean_pnl": -0.00045971310464665294,
+            "trades": 7.5,
+            "active_bars": 326.0
+          },
+          {
+            "symbol": "CRCLUSDT",
+            "ann_sharpe": -8.807500839233398,
+            "period_sharpe": -1.7274900674819946,
+            "mean_pnl": -0.0008354031597264111,
+            "trades": 0.5,
+            "active_bars": 337.0
+          },
+          {
+            "symbol": "UNITREEUSDT",
+            "ann_sharpe": -8.000041007995605,
+            "period_sharpe": -1.5691161155700684,
+            "mean_pnl": -0.0007287519401870668,
+            "trades": 0.5,
+            "active_bars": 78.0
+          },
+          {
+            "symbol": "COINUSDT",
+            "ann_sharpe": -7.916927337646484,
+            "period_sharpe": -1.5528143644332886,
+            "mean_pnl": -0.0005946539458818734,
+            "trades": 0.5,
+            "active_bars": 337.0
+          },
+          {
+            "symbol": "UVXYUSDT",
+            "ann_sharpe": -7.856243133544922,
+            "period_sharpe": -1.5409119129180908,
+            "mean_pnl": -0.0003395428357180208,
+            "trades": 3.5,
+            "active_bars": 332.0
+          }
+        ],
+        "start": "2026-08-08T07:00:00.000000000",
+        "end": "2026-08-22T07:00:00.000000000"
+      }
+    }
+  }
+}
