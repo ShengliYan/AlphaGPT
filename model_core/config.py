@@ -19,18 +19,26 @@ class ModelConfig:
     LIMIT_SYMBOLS = int(os.getenv("LIMIT_SYMBOLS", "0"))
     TEST_DAYS = int(os.getenv("TEST_DAYS", "30"))
     OOS_DAYS = int(os.getenv("OOS_DAYS", "14"))
-    _1M = BAR_INTERVAL == "1m"
-    BATCH_SIZE = int(os.getenv("BATCH_SIZE", "32" if _1M else "256"))
-    TRAIN_STEPS = int(os.getenv("TRAIN_STEPS", "80" if _1M else "200"))
+    _INTERVAL_DEFAULTS = {
+        "1m": {"batch": "32", "steps": "80", "min_qv": "100"},
+        "5m": {"batch": "32", "steps": "100", "min_qv": "300"},
+        "1h": {"batch": "256", "steps": "200", "min_qv": "1000"},
+    }
+    _d = _INTERVAL_DEFAULTS.get(BAR_INTERVAL, _INTERVAL_DEFAULTS["1h"])
+    BATCH_SIZE = int(os.getenv("BATCH_SIZE", _d["batch"]))
+    TRAIN_STEPS = int(os.getenv("TRAIN_STEPS", _d["steps"]))
     MAX_FORMULA_LEN = int(os.getenv("MAX_FORMULA_LEN", "8"))
     TRADE_SIZE_USD = float(os.getenv("TRADE_SIZE_USD", "1000"))
-    # 1m quote volume is ~1/60 of hourly; 1000 would filter out most bars.
-    MIN_QUOTE_VOLUME = float(os.getenv("MIN_QUOTE_VOLUME", "100" if _1M else "1000"))
+    # 1m/5m quote volume is a fraction of hourly; 1000 would filter out most bars.
+    MIN_QUOTE_VOLUME = float(os.getenv("MIN_QUOTE_VOLUME", _d["min_qv"]))
     BASE_FEE = float(os.getenv("FEE_BPS", os.getenv("SPOT_FEE_BPS", "5"))) / 10000.0
     INPUT_DIM = FORMULA_VOCAB.feature_count
     STRATEGY_FILE = os.getenv("STRATEGY_FILE", "best_tradfi_strategy.json")
     HISTORY_FILE = os.getenv("HISTORY_FILE", "training_history.json")
-    REPORT_FILE = os.getenv("REPORT_FILE", str(_ROOT / "reports" / "tradfi_oos.json"))
+    REPORT_FILE = os.getenv(
+        "REPORT_FILE",
+        str(_ROOT / "reports" / f"tradfi_{BAR_INTERVAL}_oos.json"),
+    )
     INTERVAL_TABLES = {
         "1m": "ohlcv",
         "5m": "ohlcv_5m",

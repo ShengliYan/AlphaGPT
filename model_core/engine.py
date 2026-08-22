@@ -10,6 +10,7 @@ from .alphagpt import AlphaGPT, NewtonSchulzLowRankDecay, StableRankMonitor
 from .backtest import SpotBacktest
 from .config import ModelConfig
 from .data_loader import CryptoDataLoader
+from .report_md import write_oos_markdown
 from .vocab import decode_formula, FORMULA_VOCAB
 from .vm import StackVM
 
@@ -196,14 +197,19 @@ class AlphaEngine:
             )
         report_path = Path(ModelConfig.REPORT_FILE)
         report_path.parent.mkdir(parents=True, exist_ok=True)
+        slim = dict(report)
+        slim.pop("symbols", None)
         with open(report_path, "w") as f:
-            json.dump(report, f, indent=2)
+            json.dump(slim, f, indent=2)
+        md_path = report_path.with_suffix(".md")
+        write_oos_markdown(slim, md_path)
 
         print("\nTraining completed.")
         print(f"  Best score: {_json_num(self.best_score)}")
         print(f"  Best formula: {self.best_formula} {decode_formula(self.best_formula)}")
         print(f"  Wrote {ModelConfig.STRATEGY_FILE}")
         print(f"  Wrote {report_path}")
+        print(f"  Wrote {md_path}")
         self._print_report(report)
         return report
 
