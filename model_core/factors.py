@@ -16,6 +16,14 @@ class RMSNormFactor(nn.Module):
         return (x / rms) * self.weight
 
 
+def rolling_mean(x, window: int):
+    """Causal trailing mean with zero left-padding. Avoids unfold's [N, T, W] peak."""
+    if window <= 1:
+        return x
+    padded = torch.nn.functional.pad(x.unsqueeze(1), (window - 1, 0))
+    return torch.nn.functional.avg_pool1d(padded, kernel_size=window, stride=1).squeeze(1)
+
+
 class StockIndicators:
     @staticmethod
     def amihud_illiquidity(close, quote_volume):
@@ -36,33 +44,24 @@ class StockIndicators:
 
     @staticmethod
     def volume_change(volume, window=20):
-        pad = torch.zeros((volume.shape[0], window - 1), device=volume.device)
-        v_pad = torch.cat([pad, volume], dim=1)
-        vol_ma = v_pad.unfold(1, window, 1).mean(dim=-1) + 1e-6
+        vol_ma = rolling_mean(volume, window) + 1e-6
         return volume / vol_ma - 1.0
 
     @staticmethod
     def price_deviation(close, window=20):
-        pad = torch.zeros((close.shape[0], window - 1), device=close.device)
-        c_pad = torch.cat([pad, close], dim=1)
-        ma = c_pad.unfold(1, window, 1).mean(dim=-1)
+        ma = rolling_mean(close, window)
         return (close - ma) / (ma + 1e-9)
 
     @staticmethod
     def volatility_clustering(close, window=10):
         ret = torch.log(close / (torch.roll(close, 1, dims=1) + 1e-9))
-        ret_sq = ret ** 2
-        pad = torch.zeros((ret_sq.shape[0], window - 1), device=close.device)
-        ret_sq_pad = torch.cat([pad, ret_sq], dim=1)
-        vol_ma = ret_sq_pad.unfold(1, window, 1).mean(dim=-1)
+        vol_ma = rolling_mean(ret ** 2, window)
         return torch.sqrt(vol_ma + 1e-9)
 
     @staticmethod
     def momentum_reversal(close, window=5):
         ret = torch.log(close / (torch.roll(close, 1, dims=1) + 1e-9))
-        pad = torch.zeros((ret.shape[0], window - 1), device=close.device)
-        ret_pad = torch.cat([pad, ret], dim=1)
-        mom = ret_pad.unfold(1, window, 1).sum(dim=-1)
+        mom = rolling_mean(ret, window) * window
         mom_prev = torch.roll(mom, 1, dims=1)
         return (mom * mom_prev < 0).float()
 
@@ -71,11 +70,8 @@ class StockIndicators:
         ret = close - torch.roll(close, 1, dims=1)
         gains = torch.relu(ret)
         losses = torch.relu(-ret)
-        pad = torch.zeros((gains.shape[0], window - 1), device=close.device)
-        gains_pad = torch.cat([pad, gains], dim=1)
-        losses_pad = torch.cat([pad, losses], dim=1)
-        avg_gain = gains_pad.unfold(1, window, 1).mean(dim=-1)
-        avg_loss = losses_pad.unfold(1, window, 1).mean(dim=-1)
+        avg_gain = rolling_mean(gains, window)
+        avg_loss = rolling_mean(losses, window)
         rs = (avg_gain + 1e-9) / (avg_loss + 1e-9)
         rsi = 100 - (100 / (1 + rs))
         return (rsi - 50) / 50
@@ -86,13 +82,14 @@ class AdvancedFactorEngineer:
     def __init__(self):
         self.rms_norm = RMSNormFactor(1)
 
-    def robust_norm(self, t):
-        median = torch.nanmedian(t, dim=1, keepdim=True)[0]
-        mad = torch.nanmedian(torch.abs(t - median), dim=1, keepdim=True)[0] + 1e-6
+    def robust_norm(self, t, norm_end=None):
+        src = t[:, :norm_end] if norm_end is not None else t
+        median = torch.nanmedian(src, dim=1, keepdim=True)[0]
+        mad = torch.nanmedian(torch.abs(src - median), dim=1, keepdim=True)[0] + 1e-6
         norm = (t - median) / mad
         return torch.clamp(norm, -5.0, 5.0)
 
-    def compute_advanced_features(self, raw_dict):
+    def compute_advanced_features(self, raw_dict, norm_end=None):
         c = raw_dict["close"]
         o = raw_dict["open"]
         h = raw_dict["high"]
@@ -114,18 +111,18 @@ class AdvancedFactorEngineer:
         vol_trend = StockIndicators.log_quote_volume(qv)
 
         features = torch.stack([
-            self.robust_norm(ret),
-            self.robust_norm(liq),
+            self.robust_norm(ret, norm_end),
+            self.robust_norm(liq, norm_end),
             pressure,
-            self.robust_norm(vol_chg),
-            self.robust_norm(dev),
-            self.robust_norm(log_vol),
-            self.robust_norm(vol_cluster),
+            self.robust_norm(vol_chg, norm_end),
+            self.robust_norm(dev, norm_end),
+            self.robust_norm(log_vol, norm_end),
+            self.robust_norm(vol_cluster, norm_end),
             momentum_rev,
-            self.robust_norm(rel_strength),
-            self.robust_norm(hl_range),
+            self.robust_norm(rel_strength, norm_end),
+            self.robust_norm(hl_range, norm_end),
             close_pos,
-            self.robust_norm(vol_trend),
+            self.robust_norm(vol_trend, norm_end),
         ], dim=1)
         return torch.nan_to_num(features, nan=0.0, posinf=5.0, neginf=-5.0)
 
@@ -134,7 +131,7 @@ class FeatureEngineer:
     INPUT_DIM = len(FEATURE_NAMES)
 
     @staticmethod
-    def compute_features(raw_dict):
+    def compute_features(raw_dict, norm_end=None):
         c = raw_dict["close"]
         o = raw_dict["open"]
         h = raw_dict["high"]
@@ -150,8 +147,9 @@ class FeatureEngineer:
         log_vol = torch.log1p(v)
 
         def robust_norm(t):
-            median = torch.nanmedian(t, dim=1, keepdim=True)[0]
-            mad = torch.nanmedian(torch.abs(t - median), dim=1, keepdim=True)[0] + 1e-6
+            src = t[:, :norm_end] if norm_end is not None else t
+            median = torch.nanmedian(src, dim=1, keepdim=True)[0]
+            mad = torch.nanmedian(torch.abs(src - median), dim=1, keepdim=True)[0] + 1e-6
             norm = (t - median) / mad
             return torch.clamp(norm, -5.0, 5.0)
 
