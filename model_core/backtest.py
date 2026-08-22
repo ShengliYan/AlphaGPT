@@ -58,7 +58,7 @@ class SpotBacktest:
         return net_pnl, position, turnover
 
     def evaluate(self, factors, raw_data, target_ret):
-        net_pnl, position, _turnover = self._net_pnl(factors, raw_data, target_ret)
+        net_pnl, position, turnover = self._net_pnl(factors, raw_data, target_ret)
         n_symbols, n_bars = net_pnl.shape
         if float(position.abs().sum()) < 1.0:
             return torch.zeros((), device=net_pnl.device), 0.0
