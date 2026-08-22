@@ -1,29 +1,45 @@
+import math
+
 import torch
 
-class MemeBacktest:
+from .config import ModelConfig
+
+
+class SpotBacktest:
     def __init__(self):
-        self.trade_size = 1000.0
-        self.min_liq = 500000.0
-        self.base_fee = 0.0060
+        self.trade_size = ModelConfig.TRADE_SIZE_USD
+        self.min_quote_volume = ModelConfig.MIN_QUOTE_VOLUME
+        self.base_fee = ModelConfig.BASE_FEE
 
     def evaluate(self, factors, raw_data, target_ret):
-        liquidity = raw_data['liquidity']
+        quote_volume = raw_data.get("quote_volume", raw_data.get("liquidity"))
         signal = torch.sigmoid(factors)
-        is_safe = (liquidity > self.min_liq).float()
-        position = (signal > 0.85).float() * is_safe
-        impact_slippage = self.trade_size / (liquidity + 1e-9)
-        impact_slippage = torch.clamp(impact_slippage, 0.0, 0.05)
+        is_liquid = (quote_volume > self.min_quote_volume).float()
+        position = (signal > 0.7).float() * is_liquid
+
+        impact_slippage = self.trade_size / (quote_volume + 1e-9)
+        impact_slippage = torch.clamp(impact_slippage, 0.0, 0.02)
         total_slippage_one_way = self.base_fee + impact_slippage
+
         prev_pos = torch.roll(position, 1, dims=1)
         prev_pos[:, 0] = 0
         turnover = torch.abs(position - prev_pos)
         tx_cost = turnover * total_slippage_one_way
+
         gross_pnl = position * target_ret
         net_pnl = gross_pnl - tx_cost
-        cum_ret = net_pnl.sum(dim=1)
-        big_drawdowns = (net_pnl < -0.05).float().sum(dim=1)
-        score = cum_ret - (big_drawdowns * 2.0)
+
+        n_symbols, n_bars = net_pnl.shape
+        mean_pnl = net_pnl.mean(dim=1)
+        std_pnl = net_pnl.std(dim=1) + 1e-8
+        sharpe = mean_pnl / std_pnl * math.sqrt(max(n_bars, 1))
+
         activity = position.sum(dim=1)
-        score = torch.where(activity < 5, torch.tensor(-10.0, device=score.device), score)
+        min_trades = max(1.0, 5.0 * n_symbols / 300.0)
+        inactive = activity < min_trades
+        score = torch.where(inactive, sharpe * 0.5, sharpe)
         final_fitness = torch.median(score)
-        return final_fitness, cum_ret.mean().item()
+        return final_fitness, mean_pnl.mean().item()
+
+
+MemeBacktest = SpotBacktest

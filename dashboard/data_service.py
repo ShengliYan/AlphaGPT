@@ -1,82 +1,78 @@
-import json
 import os
+from pathlib import Path
+
+import duckdb
 import pandas as pd
-import sqlalchemy
 from dotenv import load_dotenv
-from solders.pubkey import Pubkey
-from solana.rpc.api import Client
 
 load_dotenv()
 
+_ROOT = Path(__file__).resolve().parents[1]
+
+
 class DashboardService:
     def __init__(self):
-        db_user = os.getenv("DB_USER", "postgres")
-        db_pass = os.getenv("DB_PASSWORD", "password")
-        db_host = os.getenv("DB_HOST", "localhost")
-        db_name = os.getenv("DB_NAME", "crypto_quant")
-        self.engine = sqlalchemy.create_engine(f"postgresql://{db_user}:{db_pass}@{db_host}:5432/{db_name}")
-        rpc_url = os.getenv("QUICKNODE_RPC_URL", "https://api.mainnet-beta.solana.com")
-        self.rpc = Client(rpc_url)
-        self.wallet_addr = self._get_wallet_address()
+        self.db_path = os.getenv("DUCKDB_PATH", str(_ROOT / "data" / "alphagpt.duckdb"))
+        self.strategy_file = os.getenv("STRATEGY_FILE", "best_bstock_strategy.json")
 
-    def _get_wallet_address(self):
+    def _connect(self):
+        path = Path(self.db_path)
+        if not path.exists():
+            return None
+        return duckdb.connect(str(path), read_only=True)
+
+    def get_db_status(self):
+        con = self._connect()
+        if con is None:
+            return {"path": self.db_path, "exists": False, "n_symbols": 0, "n_bars": 0, "last_time": None}
         try:
-            from solders.keypair import Keypair
-            pk_str = os.getenv("SOLANA_PRIVATE_KEY", "")
-            if "[" in pk_str:
-                kp = Keypair.from_bytes(json.loads(pk_str))
-            else:
-                kp = Keypair.from_base58_string(pk_str)
-            return str(kp.pubkey())
+            n_symbols = con.execute("SELECT COUNT(*) FROM symbols").fetchone()[0]
+            n_bars = con.execute("SELECT COUNT(*) FROM ohlcv").fetchone()[0]
+            last_time = con.execute("SELECT MAX(time) FROM ohlcv").fetchone()[0]
+            return {
+                "path": self.db_path,
+                "exists": True,
+                "n_symbols": int(n_symbols),
+                "n_bars": int(n_bars),
+                "last_time": last_time,
+            }
         except Exception:
-            return "Unknown"
-
-    def get_wallet_balance(self):
-        try:
-            resp = self.rpc.get_balance(Pubkey.from_string(self.wallet_addr))
-            return resp.value / 1e9
-        except Exception as e:
-            return 0.0
-
-    def load_portfolio(self):
-        try:
-            with open("portfolio_state.json", "r") as f:
-                data = json.load(f)
-                if not data: return pd.DataFrame()
-                
-                df = pd.DataFrame(data.values())
-                # 计算当前预估 PnL
-                if 'highest_price' in df.columns and 'entry_price' in df.columns:
-                    df['pnl_pct'] = (df['highest_price'] - df['entry_price']) / df['entry_price']
-                return df
-        except FileNotFoundError:
-            return pd.DataFrame()
+            return {"path": self.db_path, "exists": True, "n_symbols": 0, "n_bars": 0, "last_time": None}
+        finally:
+            con.close()
 
     def load_strategy_info(self):
         try:
-            with open("best_meme_strategy.json", "r") as f:
+            import json
+            with open(self.strategy_file, "r") as f:
                 return json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError):
+        except (FileNotFoundError, OSError, ValueError):
             return {"formula": "Not Trained Yet"}
 
     def get_market_overview(self, limit=50):
-        query = f"""
-        SELECT t.symbol, o.address, o.close, o.volume, o.liquidity, o.fdv, o.time
+        con = self._connect()
+        if con is None:
+            return pd.DataFrame()
+        query = """
+        SELECT s.symbol, s.underlying, s.name, s.status,
+               o.close, o.volume, o.quote_volume, o.n_trades, o.time
         FROM ohlcv o
-        JOIN tokens t ON o.address = t.address
+        JOIN symbols s ON o.symbol = s.symbol
         WHERE o.time = (SELECT MAX(time) FROM ohlcv)
-        ORDER BY o.liquidity DESC
-        LIMIT {limit}
+        ORDER BY o.quote_volume DESC
+        LIMIT ?
         """
         try:
-            return pd.read_sql(query, self.engine)
+            return con.execute(query, [int(limit)]).df()
         except Exception:
             return pd.DataFrame()
-    
+        finally:
+            con.close()
+
     def get_recent_logs(self, n=50):
         log_file = "strategy.log"
-        if not os.path.exists(log_file): return []
-        
+        if not os.path.exists(log_file):
+            return []
         with open(log_file, "r") as f:
             lines = f.readlines()
             return lines[-n:]

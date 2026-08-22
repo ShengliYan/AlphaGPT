@@ -1,75 +1,61 @@
 import asyncio
+
 import aiohttp
 from loguru import logger
+
 from .config import Config
 from .db_manager import DBManager
-from .providers.birdeye import BirdeyeProvider
-from .providers.dexscreener import DexScreenerProvider
+from .providers.binance_bstocks import BinanceBStocksProvider
+
 
 class DataManager:
     def __init__(self):
         self.db = DBManager()
-        self.birdeye = BirdeyeProvider()
-        self.dexscreener = DexScreenerProvider()
-        
+        self.provider = BinanceBStocksProvider()
+
     async def initialize(self):
-        await self.db.connect()
-        await self.db.init_schema()
+        self.db.connect()
+        self.db.init_schema()
 
     async def close(self):
-        await self.db.close()
+        self.db.close()
 
     async def pipeline_sync_daily(self):
-        logger.info("Step 1: Discovering trending tokens...")
-        limit = 500 if Config.BIRDEYE_IS_PAID else 100
-        candidates = await self.birdeye.get_trending_tokens(limit=limit)
-        
-        logger.info(f"Raw candidates found: {len(candidates)}")
+        logger.info("Discovering Binance bStocks universe...")
+        timeout = aiohttp.ClientTimeout(total=300)
+        async with aiohttp.ClientSession(timeout=timeout) as session:
+            universe = await self.provider.discover_universe(session)
+            if not universe:
+                logger.warning("No bStocks passed the filter. Relax MIN_QUOTE_VOLUME_24H or check BINANCE_BASE_URL.")
+                return
 
-        selected_tokens = []
-        for t in candidates:
-            liq = t.get('liquidity', 0)
-            fdv = t.get('fdv', 0)
-            
-            if liq < Config.MIN_LIQUIDITY_USD: continue
-            if fdv < Config.MIN_FDV: continue
-            if fdv > Config.MAX_FDV: continue # 剔除像 WIF/BONK 这种巨无霸，专注于早期高成长
-            
-            selected_tokens.append(t)
-            
-        logger.info(f"Tokens selected after filtering: {len(selected_tokens)}")
-        
-        if not selected_tokens:
-            logger.warning("No tokens passed the filter. Relax constraints in Config.")
-            return
+            crypto_leaks = [s["symbol"] for s in universe if s["symbol"] in ("BTCUSDT", "ETHUSDT")]
+            if crypto_leaks:
+                raise RuntimeError(f"Refusing to ingest crypto pairs: {crypto_leaks}")
 
-        db_tokens = [(t['address'], t['symbol'], t['name'], t['decimals'], Config.CHAIN) for t in selected_tokens]
-        await self.db.upsert_tokens(db_tokens)
+            if Config.MAX_SYMBOLS > 0 and len(universe) > Config.MAX_SYMBOLS:
+                seeds = [s for s in universe if s["symbol"] in Config.SEED_SYMBOLS]
+                rest = [s for s in universe if s["symbol"] not in Config.SEED_SYMBOLS]
+                universe = (seeds + rest)[: Config.MAX_SYMBOLS]
+                logger.info(f"Truncated universe to MAX_SYMBOLS={Config.MAX_SYMBOLS}")
 
-        logger.info(f"Step 4: Fetching OHLCV for {len(selected_tokens)} tokens...")
-        
-        async with aiohttp.ClientSession(headers=self.birdeye.headers) as session:
-            tasks = []
-            for t in selected_tokens:
-                tasks.append(self.birdeye.get_token_history(
-                    session,
-                    t['address'],
-                    liquidity=t.get('liquidity'),
-                    fdv=t.get('fdv'),
-                ))
-            
-            batch_size = 20
+            self.db.upsert_symbols(universe)
+            logger.info(f"Fetching {Config.BINANCE_INTERVAL} klines for {len(universe)} symbols...")
+
             total_candles = 0
-            
-            for i in range(0, len(tasks), batch_size):
-                batch = tasks[i:i+batch_size]
-                results = await asyncio.gather(*batch)
-                
-                records = [item for sublist in results if sublist for item in sublist]
-                
-                # 批量写入
-                await self.db.batch_insert_ohlcv(records)
-                total_candles += len(records)
-                logger.info(f"Processed batch {i}/{len(tasks)}. Inserted {len(records)} candles.")
-                
+            batch_size = max(1, Config.CONCURRENCY)
+            for i in range(0, len(universe), batch_size):
+                batch = universe[i:i + batch_size]
+                tasks = [self.provider.get_klines(session, item["symbol"]) for item in batch]
+                results = await asyncio.gather(*tasks, return_exceptions=True)
+                records = []
+                for item, result in zip(batch, results):
+                    if isinstance(result, Exception):
+                        logger.error(f"Kline fetch failed for {item['symbol']}: {result}")
+                        continue
+                    records.extend(result)
+                inserted = self.db.batch_insert_ohlcv(records)
+                total_candles += inserted
+                logger.info(f"Processed {i + len(batch)}/{len(universe)} symbols, +{inserted} candles.")
+
         logger.success(f"Pipeline complete. Total candles stored: {total_candles}")
