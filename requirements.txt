@@ -7,7 +7,7 @@
 # For experimental scripts (times.py, lord/experiment.py):
 #   pip3 install -r requirements-optional.txt
 
-# ===== Research path (DuckDB + Binance bStocks + AlphaGPT) =====
+# ===== Research path (DuckDB + Binance TradFi USDT perps + AlphaGPT) =====
 
 # Deep Learning & Numerical Computing
 torch>=2.0.0

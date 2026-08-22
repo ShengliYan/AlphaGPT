@@ -13,7 +13,7 @@ _ROOT = Path(__file__).resolve().parents[1]
 class DashboardService:
     def __init__(self):
         self.db_path = os.getenv("DUCKDB_PATH", str(_ROOT / "data" / "alphagpt.duckdb"))
-        self.strategy_file = os.getenv("STRATEGY_FILE", "best_bstock_strategy.json")
+        self.strategy_file = os.getenv("STRATEGY_FILE", "best_tradfi_strategy.json")
 
     def _connect(self):
         path = Path(self.db_path)

@@ -6,7 +6,7 @@ from data_service import DashboardService
 from visualizer import plot_market_scatter
 
 st.set_page_config(
-    page_title="bStocks Research",
+    page_title="TradFi Perps Research",
     page_icon="📈",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -32,8 +32,8 @@ def get_service():
 
 svc = get_service()
 
-st.sidebar.title("bStocks Research")
-st.sidebar.caption("DuckDB + Binance TradFi. Research only, no live trading.")
+st.sidebar.title("TradFi Perps")
+st.sidebar.caption("DuckDB + Binance USD-M TradFi USDT contracts. Research only.")
 st.sidebar.markdown("---")
 
 status = svc.get_db_status()
@@ -60,12 +60,12 @@ with col3:
     st.metric("Snapshot quote volume", f"{last_qv:,.0f}")
 with col4:
     formula = strategy_data.get("formula") if isinstance(strategy_data, dict) else strategy_data
-    st.metric("Strategy", "AlphaGPT-bStocks", help=str(formula))
+    st.metric("Strategy", "AlphaGPT-TradFi", help=str(formula))
 
-tab1, tab2 = st.tabs(["Stock Snapshot", "Logs"])
+tab1, tab2 = st.tabs(["TradFi Snapshot", "Logs"])
 
 with tab1:
-    st.subheader("bStocks (latest bar)")
+    st.subheader("USD-M TradFi perps (latest bar)")
     if not market_df.empty:
         st.plotly_chart(plot_market_scatter(market_df), use_container_width=True)
         st.dataframe(market_df, use_container_width=True, hide_index=True)

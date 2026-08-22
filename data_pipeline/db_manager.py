@@ -57,6 +57,12 @@ class DBManager:
         self.con.execute("CREATE INDEX IF NOT EXISTS idx_ohlcv_symbol ON ohlcv (symbol);")
         logger.info("DuckDB schema ready (symbols, ohlcv).")
 
+    def reset_market_tables(self):
+        assert self.con is not None, "Call connect() first"
+        self.con.execute("DELETE FROM ohlcv")
+        self.con.execute("DELETE FROM symbols")
+        logger.info("Cleared symbols and ohlcv for a fresh universe load.")
+
     def upsert_symbols(self, rows):
         if rows is None:
             return

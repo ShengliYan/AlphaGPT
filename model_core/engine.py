@@ -58,7 +58,7 @@ class AlphaEngine:
         }
 
     def train(self):
-        print("Starting bStocks alpha mining with LoRD regularization..." if self.use_lord else "Starting bStocks alpha mining...")
+        print("Starting TradFi perp alpha mining with LoRD regularization..." if self.use_lord else "Starting TradFi perp alpha mining...")
         if self.use_lord:
             print("   LoRD regularization enabled")
             print("   Target keywords: ['q_proj', 'k_proj', 'attention', 'qk_norm']")

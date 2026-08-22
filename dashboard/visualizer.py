@@ -34,7 +34,7 @@ def plot_market_scatter(market_df):
         color="underlying" if "underlying" in market_df.columns else "symbol",
         hover_name="symbol",
         log_x=True,
-        title="bStocks snapshot (size = quote volume)",
+        title="TradFi USDT perps (size = quote volume)",
         template="plotly_dark"
     )
     return fig

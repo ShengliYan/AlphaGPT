@@ -1,5 +1,4 @@
 import asyncio
-import re
 from datetime import datetime, timezone
 from typing import Any
 
@@ -8,66 +7,57 @@ from loguru import logger
 
 from ..config import Config
 
-BSTOCK_BASE_RE = re.compile(r"^[A-Z]{1,5}B$")
-CRYPTO_TRADING_GROUP = "TRD_GRP_004"
+CRYPTO_LEAK_SYMBOLS = ("BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT")
 
 
-def underlying_from_base(base: str) -> str:
-    if base.endswith("B") and len(base) >= 2:
-        return base[:-1]
-    return base
-
-
-def _permission_groups(info: dict) -> set[str]:
-    groups: set[str] = set()
-    for item in info.get("permissions") or []:
-        groups.add(str(item))
-    for perm_set in info.get("permissionSets") or []:
-        groups.update(str(x) for x in perm_set)
-    return groups
-
-
-def is_bstock_candidate(
-    symbol: str,
-    base: str,
-    quote: str,
-    status: str = "TRADING",
-    permission_groups: set[str] | None = None,
+def is_tradfi_usdt_perp(
+    info: dict,
     seed_symbols: tuple[str, ...] | None = None,
     denylist: tuple[str, ...] | None = None,
 ) -> bool:
-    symbol = (symbol or "").upper()
-    base = (base or "").upper()
-    quote = (quote or "").upper()
-    status = (status or "").upper()
+    symbol = str(info.get("symbol") or "").upper()
+    base = str(info.get("baseAsset") or "").upper()
+    quote = str(info.get("quoteAsset") or info.get("marginAsset") or "").upper()
+    status = str(info.get("status") or "").upper()
+    contract_type = str(info.get("contractType") or "").upper()
+    underlying_type = str(info.get("underlyingType") or "").upper()
     seeds = set(seed_symbols if seed_symbols is not None else Config.SEED_SYMBOLS)
     denied = set(denylist if denylist is not None else Config.CRYPTO_DENYLIST)
 
-    if quote != "USDT" or status != "TRADING":
+    if status != "TRADING" or quote != "USDT":
         return False
     if symbol in denied or base in denied:
         return False
+    if contract_type != Config.CONTRACT_TYPE:
+        return False
     if symbol in seeds:
         return True
-    if not BSTOCK_BASE_RE.match(base):
+    if underlying_type == "COMMODITY" and not Config.INCLUDE_COMMODITIES:
         return False
-    underlying = underlying_from_base(base)
-    if underlying in denied:
-        return False
-    if permission_groups and CRYPTO_TRADING_GROUP in permission_groups:
+    if Config.UNDERLYING_TYPES and underlying_type not in Config.UNDERLYING_TYPES:
+        if underlying_type == "COMMODITY" and Config.INCLUDE_COMMODITIES:
+            return True
         return False
     return True
 
 
-class BinanceBStocksProvider:
+class BinanceTradFiProvider:
     def __init__(self):
         self.base_url = Config.BINANCE_BASE_URL.rstrip("/")
         self.fallback_urls = [u.rstrip("/") for u in Config.BINANCE_FALLBACK_URLS]
         self.semaphore = asyncio.Semaphore(Config.CONCURRENCY)
-        self.headers = {"User-Agent": "AlphaGPT-bStocks-research/1.0", "accept": "application/json"}
+        self.headers = {"User-Agent": "AlphaGPT-tradfi-research/1.0", "accept": "application/json"}
+        self.prefix = Config.BINANCE_FAPI_PREFIX.rstrip("/")
 
     def _url(self, path: str, root: str | None = None) -> str:
+        if not path.startswith("/"):
+            path = "/" + path
         return f"{(root or self.base_url).rstrip('/')}{path}"
+
+    def _fapi(self, endpoint: str) -> str:
+        if not endpoint.startswith("/"):
+            endpoint = "/" + endpoint
+        return f"{self.prefix}{endpoint}"
 
     async def _get_json(self, session: aiohttp.ClientSession, path: str, params: dict | None = None) -> Any:
         urls = [self.base_url] + [u for u in self.fallback_urls if u != self.base_url]
@@ -99,11 +89,11 @@ class BinanceBStocksProvider:
         raise RuntimeError(f"All Binance hosts failed for {path}: {last_error}")
 
     async def get_exchange_info(self, session: aiohttp.ClientSession) -> list[dict]:
-        data = await self._get_json(session, "/api/v3/exchangeInfo")
+        data = await self._get_json(session, self._fapi("/exchangeInfo"))
         return data.get("symbols") or []
 
     async def get_ticker_quote_volumes(self, session: aiohttp.ClientSession) -> dict[str, float]:
-        data = await self._get_json(session, "/api/v3/ticker/24hr")
+        data = await self._get_json(session, self._fapi("/ticker/24hr"))
         volumes: dict[str, float] = {}
         if isinstance(data, dict):
             data = [data]
@@ -116,15 +106,22 @@ class BinanceBStocksProvider:
 
     def _symbol_record(self, info: dict) -> dict:
         base = info.get("baseAsset", "")
-        quote = info.get("quoteAsset", "")
-        underlying = underlying_from_base(base)
+        quote = info.get("quoteAsset") or info.get("marginAsset") or ""
+        onboard = info.get("onboardDate")
+        try:
+            onboard_ms = int(onboard) if onboard else None
+        except (TypeError, ValueError):
+            onboard_ms = None
         return {
             "symbol": info.get("symbol", ""),
             "base": base,
             "quote": quote,
-            "underlying": underlying,
-            "name": underlying,
+            "underlying": base,
+            "name": f"{base} {info.get('underlyingType') or 'TradFi'}".strip(),
             "status": info.get("status", ""),
+            "contract_type": info.get("contractType", ""),
+            "underlying_type": info.get("underlyingType", ""),
+            "onboard_ms": onboard_ms,
         }
 
     async def discover_universe(self, session: aiohttp.ClientSession) -> list[dict]:
@@ -133,19 +130,10 @@ class BinanceBStocksProvider:
         selected: dict[str, dict] = {}
 
         for info in infos:
-            if not info.get("isSpotTradingAllowed", True):
+            if not is_tradfi_usdt_perp(info):
                 continue
-            symbol = info.get("symbol", "")
             record = self._symbol_record(info)
-            groups = _permission_groups(info)
-            if not is_bstock_candidate(
-                record["symbol"],
-                record["base"],
-                record["quote"],
-                record["status"],
-                permission_groups=groups,
-            ):
-                continue
+            symbol = record["symbol"]
             quote_vol = volumes.get(symbol, 0.0)
             record["quote_volume_24h"] = quote_vol
             is_seed = symbol in Config.SEED_SYMBOLS
@@ -158,20 +146,23 @@ class BinanceBStocksProvider:
                 continue
             match = next((info for info in infos if info.get("symbol") == seed), None)
             if not match:
-                logger.warning(f"Seed symbol {seed} not found in exchangeInfo")
+                logger.warning(f"Seed symbol {seed} not found on USD-M futures")
+                continue
+            if not is_tradfi_usdt_perp(match):
+                logger.warning(
+                    f"Seed {seed} is not a TRADING {Config.CONTRACT_TYPE} USDT contract "
+                    f"(type={match.get('contractType')} status={match.get('status')})"
+                )
                 continue
             record = self._symbol_record(match)
-            if record["quote"] != "USDT" or record["status"] != "TRADING":
-                logger.warning(f"Seed symbol {seed} is not a TRADING USDT pair")
-                continue
             record["quote_volume_24h"] = volumes.get(seed, 0.0)
             selected[seed] = record
 
         universe = sorted(selected.values(), key=lambda r: r.get("quote_volume_24h", 0.0), reverse=True)
-        blocked = [s for s in ("BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT") if s in selected]
+        blocked = [s for s in CRYPTO_LEAK_SYMBOLS if s in selected]
         if blocked:
             raise RuntimeError(f"Crypto pairs leaked into universe: {blocked}")
-        logger.info(f"bStocks universe: {len(universe)} symbols")
+        logger.info(f"TradFi USDT perps: {len(universe)} symbols")
         return universe
 
     @staticmethod
@@ -187,8 +178,12 @@ class BinanceBStocksProvider:
             "volume": float(row[5]),
             "quote_volume": float(row[7]),
             "n_trades": int(row[8]),
-            "source": "binance",
+            "source": "binance_fapi",
         }
+
+    def _default_start_ms(self) -> int:
+        start_dt = datetime.strptime(Config.BINANCE_START, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+        return int(start_dt.timestamp() * 1000)
 
     async def get_klines(
         self,
@@ -199,12 +194,9 @@ class BinanceBStocksProvider:
         end_ms: int | None = None,
     ) -> list[dict]:
         interval = interval or Config.BINANCE_INTERVAL
-        if start_ms is None:
-            start_dt = datetime.strptime(Config.BINANCE_START, "%Y-%m-%d").replace(tzinfo=timezone.utc)
-            start_ms = int(start_dt.timestamp() * 1000)
+        cursor = start_ms if start_ms is not None else self._default_start_ms()
 
         candles: list[dict] = []
-        cursor = start_ms
         while True:
             params = {
                 "symbol": symbol,
@@ -215,7 +207,7 @@ class BinanceBStocksProvider:
             if end_ms is not None:
                 params["endTime"] = end_ms
             async with self.semaphore:
-                data = await self._get_json(session, "/api/v3/klines", params=params)
+                data = await self._get_json(session, self._fapi("/klines"), params=params)
             if not data:
                 break
             candles.extend(self._parse_kline(symbol, row) for row in data)

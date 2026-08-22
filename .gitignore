@@ -49,6 +49,7 @@ data/*.duckdb
 data/*.duckdb.wal
 *.duckdb
 *.duckdb.wal
+best_tradfi_strategy.json
 best_bstock_strategy.json
 best_meme_strategy.json
 training_history.json
