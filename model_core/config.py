@@ -31,7 +31,13 @@ class ModelConfig:
     TRADE_SIZE_USD = float(os.getenv("TRADE_SIZE_USD", "1000"))
     # 1m/5m quote volume is a fraction of hourly; 1000 would filter out most bars.
     MIN_QUOTE_VOLUME = float(os.getenv("MIN_QUOTE_VOLUME", _d["min_qv"]))
-    BASE_FEE = float(os.getenv("FEE_BPS", os.getenv("SPOT_FEE_BPS", "5"))) / 10000.0
+    # Maker fills on these perps are 0 fee; set FEE_BPS=5 to replay the old taker book.
+    BASE_FEE = float(os.getenv("FEE_BPS", os.getenv("SPOT_FEE_BPS", "0"))) / 10000.0
+    # long_short = cross-sectional sign vs mean (perps). long_only = old sigmoid>0.7 book.
+    POSITION_MODE = os.getenv("POSITION_MODE", "long_short")
+    LS_Z_THRESH = float(os.getenv("LS_Z_THRESH", "0"))
+    # 0 = fill at mid (maker). 1 = old taker impact = trade_size / quote_volume, capped at 2%.
+    IMPACT_COEFF = float(os.getenv("IMPACT_COEFF", "0"))
     INPUT_DIM = FORMULA_VOCAB.feature_count
     STRATEGY_FILE = os.getenv("STRATEGY_FILE", "best_tradfi_strategy.json")
     HISTORY_FILE = os.getenv("HISTORY_FILE", "training_history.json")

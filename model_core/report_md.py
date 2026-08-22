@@ -47,18 +47,34 @@ def write_oos_markdown(report: dict, path: str | Path, takeaway: str | None = No
         lines.append(
             f"| {name} | {_short_ts(window.get('start'))} → {_short_ts(window.get('end'))} ({n_bars:,} bars) |"
         )
+    pos_mode = report.get("position_mode") or "long_short"
+    if pos_mode == "long_only":
+        pos_desc = "long-only if sigmoid(factor) > 0.7 and bar is liquid"
+    else:
+        thresh = report.get("ls_z_thresh")
+        pos_desc = (
+            f"cross-sectional long/short vs mean among liquid names"
+            + (f" (|z| > {thresh:g})" if thresh else "")
+        )
+    fee_bps = float(report.get("fee_bps") or 0)
+    impact = report.get("impact_coeff")
+    fee_desc = f"{fee_bps:.0f} bps"
+    if impact:
+        fee_desc += f" + impact×{impact:g}"
+    else:
+        fee_desc += " maker (no impact)"
     lines.extend(
         [
-            f"| Fee | {float(report.get('fee_bps') or 0):.0f} bps + impact, ${float(report.get('trade_size_usd') or 0):.0f} notional |",
+            f"| Fee | {fee_desc}, ${float(report.get('trade_size_usd') or 0):.0f} notional |",
             f"| Min quote volume | {float(report.get('min_quote_volume') or 0):.0f} |",
-            "| Position | long-only if sigmoid(factor) > 0.7 and bar is liquid |",
+            f"| Position | {pos_desc} |",
             f"| Search | AlphaGPT {report.get('train_steps')} steps × batch {report.get('batch_size')}, formula length 8 |",
             "",
             "## Mined formula",
             "",
             "`" + " ".join(report.get("formula_decoded") or []) + f"`  tokens={report.get('formula')}",
             "",
-            f"Train fitness (median *period* Sharpe across names) is **{report.get('train_fitness')}**.",
+            f"Train fitness (equal-weight book period Sharpe) is **{report.get('train_fitness')}**.",
             "",
             f"Annualized EW return is `mean(per-bar EW net pnl) × {bars_per_year:,}`. It is not a compounded NAV.",
             "",
@@ -71,8 +87,8 @@ def write_oos_markdown(report: dict, path: str | Path, takeaway: str | None = No
         n_bars = int(window.get("n_bars") or 0)
         lines.append(f"### {window_name} ({n_bars:,} bars)")
         lines.append("")
-        lines.append("| Variant | Med ann Sharpe | EW ann Sharpe | EW ann return | Hit rate | Trades |")
-        lines.append("|---|---:|---:|---:|---:|---:|")
+        lines.append("| Variant | Med ann Sharpe | EW ann Sharpe | EW ann return | Hit | Long/Short bars | Trades |")
+        lines.append("|---|---:|---:|---:|---:|---:|---:|")
         for key in keys:
             stats = window.get(key)
             if not stats:
@@ -80,7 +96,9 @@ def write_oos_markdown(report: dict, path: str | Path, takeaway: str | None = No
             lines.append(
                 f"| {key} | {_fmt(stats.get('median_ann_sharpe'))} | "
                 f"{_fmt(stats.get('ew_ann_sharpe'))} | {_fmt(stats.get('ew_ann_return'))} | "
-                f"{_fmt(stats.get('ew_hit_rate'))} | {float(stats.get('total_trades') or 0):.0f} |"
+                f"{_fmt(stats.get('ew_hit_rate'))} | "
+                f"{float(stats.get('long_bars') or 0):.0f}/{float(stats.get('short_bars') or 0):.0f} | "
+                f"{float(stats.get('total_trades') or 0):.0f} |"
             )
         lines.append("")
         best = window.get("best") or {}

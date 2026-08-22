@@ -99,10 +99,12 @@ class AlphaEngine:
             print("   LoRD regularization enabled")
             print("   Target keywords: ['q_proj', 'k_proj', 'attention', 'qk_norm']")
         print(
-            f"   fee={ModelConfig.BASE_FEE:.4f} batch={ModelConfig.BATCH_SIZE} "
-            f"steps={ModelConfig.TRAIN_STEPS} formula_len={ModelConfig.MAX_FORMULA_LEN} "
-            f"interval={ModelConfig.BAR_INTERVAL} min_qv={ModelConfig.MIN_QUOTE_VOLUME:g} "
-            f"test_days={ModelConfig.TEST_DAYS} oos_days={ModelConfig.OOS_DAYS}"
+            f"   fee={ModelConfig.BASE_FEE:.4f} impact={ModelConfig.IMPACT_COEFF:g} "
+            f"side={ModelConfig.POSITION_MODE} z_thresh={ModelConfig.LS_Z_THRESH:g} "
+            f"batch={ModelConfig.BATCH_SIZE} steps={ModelConfig.TRAIN_STEPS} "
+            f"formula_len={ModelConfig.MAX_FORMULA_LEN} interval={ModelConfig.BAR_INTERVAL} "
+            f"min_qv={ModelConfig.MIN_QUOTE_VOLUME:g} test_days={ModelConfig.TEST_DAYS} "
+            f"oos_days={ModelConfig.OOS_DAYS}"
         )
 
         pbar = tqdm(range(ModelConfig.TRAIN_STEPS))
@@ -180,6 +182,9 @@ class AlphaEngine:
             "base_fee": ModelConfig.BASE_FEE,
             "min_quote_volume": ModelConfig.MIN_QUOTE_VOLUME,
             "bar_interval": ModelConfig.BAR_INTERVAL,
+            "position_mode": ModelConfig.POSITION_MODE,
+            "ls_z_thresh": ModelConfig.LS_Z_THRESH,
+            "impact_coeff": ModelConfig.IMPACT_COEFF,
             "symbols": self.loader.symbols,
             "split": {name: self.loader.window_meta(name) for name in self.loader.split},
         }
@@ -251,6 +256,9 @@ class AlphaEngine:
             "fee_bps": ModelConfig.BASE_FEE * 10000.0,
             "min_quote_volume": ModelConfig.MIN_QUOTE_VOLUME,
             "trade_size_usd": ModelConfig.TRADE_SIZE_USD,
+            "position_mode": ModelConfig.POSITION_MODE,
+            "ls_z_thresh": ModelConfig.LS_Z_THRESH,
+            "impact_coeff": ModelConfig.IMPACT_COEFF,
             "train_steps": ModelConfig.TRAIN_STEPS,
             "batch_size": ModelConfig.BATCH_SIZE,
             "test_days": ModelConfig.TEST_DAYS,
@@ -277,7 +285,7 @@ class AlphaEngine:
                     f"  {key:16s} med_ann_sharpe={stats.get('median_ann_sharpe'):.3f}  "
                     f"ew_ann_sharpe={stats.get('ew_ann_sharpe'):.3f}  "
                     f"ew_ann_ret={stats.get('ew_ann_return'):.3f}  "
-                    f"maxDD_sum={stats.get('ew_max_drawdown'):.3f}  "
+                    f"long={stats.get('long_bars'):.0f} short={stats.get('short_bars'):.0f}  "
                     f"trades={stats.get('total_trades'):.0f}  "
                     f"hit={stats.get('ew_hit_rate'):.3f}"
                 )
