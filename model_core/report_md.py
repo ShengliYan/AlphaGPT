@@ -31,9 +31,10 @@ def write_oos_markdown(report: dict, path: str | Path, takeaway: str | None = No
         f"# TradFi {interval} OOS backtest",
         "",
         f"{n_symbols} USD-M TradFi USDT perps, **{interval}** bars from DuckDB. "
-        "Formula search is trained on all names with the last 30 calendar days held out; "
-        "the last 14 days are a nested OOS window. Robust-norm medians/MADs are fit on train only, "
-        "and the last two train labels are zeroed so they cannot peek at test opens.",
+        "Formula search uses a train / valid / test split: robust-norm stats are fit on train only; "
+        "the last two labels at each window boundary are zeroed so they cannot peek at the next open. "
+        "The miner is scored on walk-forward train folds; the king is the formula that maximizes "
+        "`min(train_fold_mean, valid) - GAP_PENALTY * |train-valid|`. Test windows stay out of selection.",
         "",
         "## Setup",
         "",
@@ -69,12 +70,17 @@ def write_oos_markdown(report: dict, path: str | Path, takeaway: str | None = No
             f"| Min quote volume | {float(report.get('min_quote_volume') or 0):.0f} |",
             f"| Position | {pos_desc} |",
             f"| Search | AlphaGPT {report.get('train_steps')} steps × batch {report.get('batch_size')}, formula length 8 |",
+            f"| Valid days | {report.get('valid_days')} |",
+            f"| Train folds | {report.get('n_folds')} |",
+            f"| Gap / turnover penalty | {report.get('gap_penalty')} / {report.get('turnover_penalty')} |",
             "",
             "## Mined formula",
             "",
             "`" + " ".join(report.get("formula_decoded") or []) + f"`  tokens={report.get('formula')}",
             "",
-            f"Train fitness (equal-weight book period Sharpe) is **{report.get('train_fitness')}**.",
+            f"Train selection score is **{report.get('train_fitness')}** "
+            f"(fold mean {report.get('train_fold_mean')}, valid {report.get('valid_score')}, "
+            f"folds={report.get('train_fold_scores')}).",
             "",
             f"Annualized EW return is `mean(per-bar EW net pnl) × {bars_per_year:,}`. It is not a compounded NAV.",
             "",
@@ -114,6 +120,30 @@ def write_oos_markdown(report: dict, path: str | Path, takeaway: str | None = No
             lines.append(f"- Mined formula, traded names only — top 5 Sharpe: {tops}")
             lines.append(f"- Bottom 5 Sharpe: {bots}")
             lines.append("")
+
+    consistency = report.get("consistency") or []
+    if consistency:
+        lines.extend(
+            [
+                "## Sign consistency",
+                "",
+                "| Variant | Train | Valid | Test 30d | Train=Valid | Valid=Test |",
+                "|---|---:|---:|---:|---|---|",
+            ]
+        )
+        test_key = f"test_{report.get('test_days') or 30}d"
+        for row in consistency:
+            sharpes = row.get("sharpes") or {}
+            test_s = sharpes.get(test_key)
+            if test_s is None:
+                test_s = sharpes.get("test_30d")
+            lines.append(
+                f"| {row.get('variant')} | {_fmt(sharpes.get('train'))} | {_fmt(sharpes.get('valid'))} | "
+                f"{_fmt(test_s)} | "
+                f"{'yes' if row.get('train_valid_same_sign') else 'no'} | "
+                f"{'yes' if row.get('valid_test_same_sign') else 'no'} |"
+            )
+        lines.append("")
 
     if takeaway:
         lines.extend(["## Takeaway", "", takeaway, ""])

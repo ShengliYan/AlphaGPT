@@ -19,6 +19,13 @@ class ModelConfig:
     LIMIT_SYMBOLS = int(os.getenv("LIMIT_SYMBOLS", "0"))
     TEST_DAYS = int(os.getenv("TEST_DAYS", "30"))
     OOS_DAYS = int(os.getenv("OOS_DAYS", "14"))
+    # Days immediately before the test holdout, used only to select formulas.
+    VALID_DAYS = int(os.getenv("VALID_DAYS", "30"))
+    N_FOLDS = int(os.getenv("N_FOLDS", "4"))
+    # Penalize unstable fold Sharpes and train/valid gaps: score - GAP_PENALTY * std/gap.
+    GAP_PENALTY = float(os.getenv("GAP_PENALTY", "1.0"))
+    # Subtract TURNOVER_PENALTY * mean(|Δposition|) from the training Sharpe.
+    TURNOVER_PENALTY = float(os.getenv("TURNOVER_PENALTY", "1.0"))
     _INTERVAL_DEFAULTS = {
         "1m": {"batch": "32", "steps": "80", "min_qv": "100"},
         "5m": {"batch": "32", "steps": "100", "min_qv": "300"},

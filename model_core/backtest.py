@@ -65,7 +65,9 @@ class SpotBacktest:
         ew = net_pnl.mean(dim=0)
         sharpe = ew.mean() / (ew.std() + 1e-8) * math.sqrt(max(n_bars, 1))
         sharpe = torch.nan_to_num(sharpe, nan=0.0, posinf=0.0, neginf=0.0)
-        return sharpe, float(ew.mean().item())
+        turn = float(turnover.mean().item())
+        score = sharpe - float(ModelConfig.TURNOVER_PENALTY) * turn
+        return score, float(ew.mean().item())
 
     def summarize(self, factors, raw_data, target_ret, symbols=None, times=None):
         net_pnl, position, turnover = self._net_pnl(factors, raw_data, target_ret)

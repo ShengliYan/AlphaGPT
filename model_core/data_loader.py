@@ -38,6 +38,7 @@ class CryptoDataLoader:
         self.addresses = []
         self.times = None
         self.train_end = None
+        self.valid_end = None
         self.oos_start = None
         self.split = {}
 
@@ -132,9 +133,10 @@ class CryptoDataLoader:
         self.target_ret = torch.where(safe, torch.log(t2 / t1), torch.zeros_like(op))
         self.target_ret[:, -2:] = 0.0
         self.target_ret = torch.nan_to_num(self.target_ret, nan=0.0, posinf=0.0, neginf=0.0)
-        # Training labels must not peek at the first two test opens.
-        if self.train_end is not None and self.train_end >= 2:
-            self.target_ret[:, self.train_end - 2 : self.train_end] = 0.0
+        # Do not let a window's last two labels peek into the next window's opens.
+        for boundary in (self.train_end, self.valid_end):
+            if boundary is not None and boundary >= 2:
+                self.target_ret[:, boundary - 2 : boundary] = 0.0
 
         n_sym, n_ch, n_t = self.feat_tensor.shape
         print(
@@ -150,28 +152,36 @@ class CryptoDataLoader:
         n_t = int(self.raw_data_cache["close"].shape[1])
         test_days = int(ModelConfig.TEST_DAYS)
         oos_days = int(ModelConfig.OOS_DAYS)
+        valid_days = int(ModelConfig.VALID_DAYS)
         if test_days <= 0 or self.times is None or len(self.times) == 0:
             self.train_end = n_t
+            self.valid_end = n_t
             self.oos_start = n_t
-            self.split = {
-                "train": slice(0, n_t),
-                "test_30d": slice(n_t, n_t),
-                "test_14d": slice(n_t, n_t),
-            }
+            self.split = {"train": slice(0, n_t)}
             return
 
         t_max = self.times[-1]
         cutoff_test = t_max - np.timedelta64(test_days, "D")
         cutoff_oos = t_max - np.timedelta64(oos_days, "D")
-        train_end = int(np.searchsorted(self.times, cutoff_test, side="left"))
+        test_start = int(np.searchsorted(self.times, cutoff_test, side="left"))
+        test_start = max(2, min(test_start, n_t - 1))
+        if valid_days > 0:
+            cutoff_valid = cutoff_test - np.timedelta64(valid_days, "D")
+            train_end = int(np.searchsorted(self.times, cutoff_valid, side="left"))
+            train_end = max(2, min(train_end, test_start - 1))
+        else:
+            train_end = test_start
         oos_start = int(np.searchsorted(self.times, cutoff_oos, side="left"))
-        train_end = max(2, min(train_end, n_t - 1))
-        oos_start = max(train_end, min(oos_start, n_t))
+        oos_start = max(test_start, min(oos_start, n_t))
         self.train_end = train_end
+        self.valid_end = test_start
         self.oos_start = oos_start
         holdout_name = f"test_{test_days}d"
         recent_name = f"test_{oos_days}d"
-        self.split = {"train": slice(0, train_end), holdout_name: slice(train_end, n_t)}
+        self.split = {"train": slice(0, train_end)}
+        if test_start > train_end:
+            self.split["valid"] = slice(train_end, test_start)
+        self.split[holdout_name] = slice(test_start, n_t)
         if recent_name != holdout_name:
             self.split[recent_name] = slice(oos_start, n_t)
 
