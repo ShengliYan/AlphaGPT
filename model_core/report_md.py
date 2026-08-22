@@ -84,7 +84,7 @@ def write_oos_markdown(report: dict, path: str | Path, takeaway: str | None = No
             )
         lines.append("")
         best = window.get("best") or {}
-        if best.get("top5"):
+        if best.get("top5") and any(float(row.get("trades") or 0) > 0 for row in best["top5"]):
             tops = ", ".join(
                 f"{row['symbol']} ({row['ann_sharpe']:.2f}, trades={row['trades']:.0f})"
                 for row in best["top5"]

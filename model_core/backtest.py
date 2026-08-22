@@ -98,7 +98,9 @@ class SpotBacktest:
                 }
             )
         traded = [row for row in per_symbol if row["trades"] > 0]
-        ranked = sorted(traded or per_symbol, key=lambda row: row["ann_sharpe"], reverse=True)
+        ranked = sorted(traded, key=lambda row: row["ann_sharpe"], reverse=True)
+        top5 = ranked[:5]
+        bottom5 = ranked[-5:][::-1] if ranked else []
 
         return {
             "n_symbols": int(n_symbols),
@@ -116,8 +118,8 @@ class SpotBacktest:
             "mean_pnl": _to_float(mean_pnl.mean()),
             "total_trades": _to_float(trades.sum()),
             "mean_trades_per_symbol": _to_float(trades.mean()),
-            "top5": ranked[:5],
-            "bottom5": ranked[-5:][::-1],
+            "top5": top5,
+            "bottom5": bottom5,
             "start": str(times[0]) if times is not None and len(times) else None,
             "end": str(times[-1]) if times is not None and len(times) else None,
         }
