@@ -57,8 +57,9 @@ def _cs_pearson(x: np.ndarray, y: np.ndarray, min_names: int = MIN_IC_NAMES) -> 
     n = valid.sum(axis=0)
     x2 = np.where(valid, x, np.nan)
     y2 = np.where(valid, y, np.nan)
-    xm = x2 - np.nanmean(x2, axis=0)
-    ym = y2 - np.nanmean(y2, axis=0)
+    with np.errstate(all="ignore"):
+        xm = x2 - np.nanmean(x2, axis=0)
+        ym = y2 - np.nanmean(y2, axis=0)
     xm = np.where(valid, xm, 0.0)
     ym = np.where(valid, ym, 0.0)
     num = (xm * ym).sum(axis=0)
