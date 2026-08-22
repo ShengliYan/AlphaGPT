@@ -26,10 +26,15 @@ class Config:
         "https://www.binance.com",
         "https://fapi.binance.com",
     )
-    BINANCE_INTERVAL = os.getenv("BINANCE_INTERVAL", "1h")
+    # Canonical stored bars. 5m/1h are resampled from this, not fetched.
+    STORAGE_INTERVAL = os.getenv("BINANCE_INTERVAL", "1m")
+    BINANCE_INTERVAL = STORAGE_INTERVAL
+    BAR_INTERVAL = os.getenv("BAR_INTERVAL", "1h")
     BINANCE_KLINE_LIMIT = int(os.getenv("BINANCE_KLINE_LIMIT", "1000"))
     BINANCE_START = os.getenv("BINANCE_START", "2026-01-01")
     BINANCE_FAPI_PREFIX = os.getenv("BINANCE_FAPI_PREFIX", "/fapi/v1")
+    # USD-M klines weight=5 at limit=1000; 2400 weight/min => ~8 req/s max.
+    KLINE_MIN_INTERVAL_SEC = float(os.getenv("KLINE_MIN_INTERVAL_SEC", "0.13"))
 
     CONTRACT_TYPE = os.getenv("TRADFI_CONTRACT_TYPE", "TRADIFI_PERPETUAL")
     UNDERLYING_TYPES = tuple(_csv_env(
@@ -59,5 +64,11 @@ class Config:
     MIN_QUOTE_VOLUME_24H = float(os.getenv("MIN_QUOTE_VOLUME_24H", "10000"))
     MAX_SYMBOLS = int(os.getenv("MAX_SYMBOLS", "0"))
     FEE_BPS = float(os.getenv("FEE_BPS", os.getenv("SPOT_FEE_BPS", "5")))
-    CONCURRENCY = int(os.getenv("BINANCE_CONCURRENCY", "8"))
-    TIMEFRAME = BINANCE_INTERVAL
+    CONCURRENCY = int(os.getenv("BINANCE_CONCURRENCY", "6"))
+    TIMEFRAME = STORAGE_INTERVAL
+
+    INTERVAL_TABLES = {
+        "1m": "ohlcv",
+        "5m": "ohlcv_5m",
+        "1h": "ohlcv_1h",
+    }

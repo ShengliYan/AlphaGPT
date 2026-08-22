@@ -23,3 +23,16 @@ class ModelConfig:
     INPUT_DIM = FORMULA_VOCAB.feature_count
     STRATEGY_FILE = os.getenv("STRATEGY_FILE", "best_tradfi_strategy.json")
     HISTORY_FILE = os.getenv("HISTORY_FILE", "training_history.json")
+    BAR_INTERVAL = os.getenv("BAR_INTERVAL", "1h")
+    INTERVAL_TABLES = {
+        "1m": "ohlcv",
+        "5m": "ohlcv_5m",
+        "1h": "ohlcv_1h",
+    }
+
+    @classmethod
+    def ohlcv_table(cls) -> str:
+        table = cls.INTERVAL_TABLES.get(cls.BAR_INTERVAL)
+        if not table:
+            raise ValueError(f"Unsupported BAR_INTERVAL={cls.BAR_INTERVAL!r}; use 1m, 5m, or 1h")
+        return table

@@ -41,8 +41,9 @@ with st.sidebar:
     st.subheader("DuckDB")
     st.code(status["path"], language="text")
     st.metric("Symbols", status["n_symbols"])
-    st.metric("OHLCV rows", status["n_bars"])
-    st.caption(f"Last bar: {status['last_time']}")
+    st.metric("1m bars", f"{status.get('n_1m', status['n_bars']):,}")
+    st.metric("5m / 1h", f"{status.get('n_5m', 0):,} / {status.get('n_1h', 0):,}")
+    st.caption(f"Last 1m bar: {status['last_time']}")
     st.markdown("---")
     if st.button("Refresh Data"):
         st.rerun()

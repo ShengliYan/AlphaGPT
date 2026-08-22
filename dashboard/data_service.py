@@ -24,20 +24,30 @@ class DashboardService:
     def get_db_status(self):
         con = self._connect()
         if con is None:
-            return {"path": self.db_path, "exists": False, "n_symbols": 0, "n_bars": 0, "last_time": None}
+            return {"path": self.db_path, "exists": False, "n_symbols": 0, "n_bars": 0, "n_1m": 0, "n_5m": 0, "n_1h": 0, "last_time": None}
         try:
             n_symbols = con.execute("SELECT COUNT(*) FROM symbols").fetchone()[0]
-            n_bars = con.execute("SELECT COUNT(*) FROM ohlcv").fetchone()[0]
+            n_1m = con.execute("SELECT COUNT(*) FROM ohlcv").fetchone()[0]
+            n_5m = 0
+            n_1h = 0
+            try:
+                n_5m = con.execute("SELECT COUNT(*) FROM ohlcv_5m").fetchone()[0]
+                n_1h = con.execute("SELECT COUNT(*) FROM ohlcv_1h").fetchone()[0]
+            except Exception:
+                pass
             last_time = con.execute("SELECT MAX(time) FROM ohlcv").fetchone()[0]
             return {
                 "path": self.db_path,
                 "exists": True,
                 "n_symbols": int(n_symbols),
-                "n_bars": int(n_bars),
+                "n_bars": int(n_1m),
+                "n_1m": int(n_1m),
+                "n_5m": int(n_5m),
+                "n_1h": int(n_1h),
                 "last_time": last_time,
             }
         except Exception:
-            return {"path": self.db_path, "exists": True, "n_symbols": 0, "n_bars": 0, "last_time": None}
+            return {"path": self.db_path, "exists": True, "n_symbols": 0, "n_bars": 0, "n_1m": 0, "n_5m": 0, "n_1h": 0, "last_time": None}
         finally:
             con.close()
 

@@ -22,7 +22,8 @@ class CryptoDataLoader:
             raise FileNotFoundError(
                 f"DuckDB file not found: {path}. Run `python -m data_pipeline.run_pipeline` first."
             )
-        print(f"Loading data from DuckDB ({path})...")
+        print(f"Loading {ModelConfig.BAR_INTERVAL} bars from DuckDB ({path})...")
+        table = ModelConfig.ohlcv_table()
         con = duckdb.connect(str(path), read_only=True)
         try:
             self.symbols = con.execute(
@@ -35,7 +36,7 @@ class CryptoDataLoader:
             df = con.execute(
                 f"""
                 SELECT time, symbol, open, high, low, close, volume, quote_volume, n_trades
-                FROM ohlcv
+                FROM {table}
                 WHERE symbol IN ({placeholders})
                 ORDER BY time ASC
                 """,
@@ -77,4 +78,4 @@ class CryptoDataLoader:
         self.target_ret = torch.where(safe, torch.log(t2 / t1), torch.zeros_like(op))
         self.target_ret[:, -2:] = 0.0
         self.target_ret = torch.nan_to_num(self.target_ret, nan=0.0, posinf=0.0, neginf=0.0)
-        print(f"Data Ready. Symbols={len(self.symbols)} Shape={tuple(self.feat_tensor.shape)}")
+        print(f"Data Ready. Interval={ModelConfig.BAR_INTERVAL} Symbols={len(self.symbols)} Shape={tuple(self.feat_tensor.shape)}")

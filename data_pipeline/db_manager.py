@@ -6,6 +6,22 @@ from loguru import logger
 
 from .config import Config
 
+_AGG_SQL = """
+SELECT
+    time_bucket(INTERVAL '{bucket}', time) AS time,
+    symbol,
+    arg_min(open, time) AS open,
+    max(high) AS high,
+    min(low) AS low,
+    arg_max(close, time) AS close,
+    sum(volume) AS volume,
+    sum(quote_volume) AS quote_volume,
+    CAST(sum(n_trades) AS INTEGER) AS n_trades,
+    any_value(source) AS source
+FROM ohlcv
+GROUP BY 1, 2
+"""
+
 
 class DBManager:
     def __init__(self, db_path: str | None = None):
@@ -54,14 +70,42 @@ class DBManager:
                 PRIMARY KEY (time, symbol)
             );
         """)
+        self.con.execute("""
+            CREATE TABLE IF NOT EXISTS meta (
+                key VARCHAR PRIMARY KEY,
+                value VARCHAR
+            );
+        """)
         self.con.execute("CREATE INDEX IF NOT EXISTS idx_ohlcv_symbol ON ohlcv (symbol);")
-        logger.info("DuckDB schema ready (symbols, ohlcv).")
+        logger.info("DuckDB schema ready (symbols, ohlcv 1m, meta).")
 
-    def reset_market_tables(self):
+    def prepare_storage_interval(self, interval: str = "1m"):
         assert self.con is not None, "Call connect() first"
-        self.con.execute("DELETE FROM ohlcv")
-        self.con.execute("DELETE FROM symbols")
-        logger.info("Cleared symbols and ohlcv for a fresh universe load.")
+        row = self.con.execute("SELECT value FROM meta WHERE key = 'storage_interval'").fetchone()
+        current = row[0] if row else None
+        n_rows = self.con.execute("SELECT COUNT(*) FROM ohlcv").fetchone()[0]
+        if current != interval:
+            if n_rows:
+                logger.warning(f"OHLCV storage {current!r} -> {interval!r}; dropping {n_rows} rows")
+                self.con.execute("DELETE FROM ohlcv")
+                self.con.execute("DROP TABLE IF EXISTS ohlcv_5m")
+                self.con.execute("DROP TABLE IF EXISTS ohlcv_1h")
+            self.con.execute(
+                "INSERT OR REPLACE INTO meta VALUES ('storage_interval', ?)",
+                [interval],
+            )
+
+    def last_bar_times_ms(self) -> dict[str, int]:
+        df = self.con.execute("SELECT symbol, max(time) AS t FROM ohlcv GROUP BY 1").df()
+        out: dict[str, int] = {}
+        for row in df.itertuples(index=False):
+            ts = pd.Timestamp(row.t)
+            if ts.tzinfo is None:
+                ts = ts.tz_localize("UTC")
+            else:
+                ts = ts.tz_convert("UTC")
+            out[str(row.symbol)] = int(ts.timestamp() * 1000)
+        return out
 
     def upsert_symbols(self, rows):
         if rows is None:
@@ -105,6 +149,18 @@ class DBManager:
         """)
         self.con.unregister("_incoming_ohlcv")
         return len(incoming)
+
+    def rebuild_resampled_bars(self):
+        assert self.con is not None, "Call connect() first"
+        logger.info("Resampling 1m -> 5m and 1h...")
+        self.con.execute(f"CREATE OR REPLACE TABLE ohlcv_5m AS {_AGG_SQL.format(bucket='5 minutes')}")
+        self.con.execute(f"CREATE OR REPLACE TABLE ohlcv_1h AS {_AGG_SQL.format(bucket='1 hour')}")
+        self.con.execute("CREATE INDEX IF NOT EXISTS idx_ohlcv_5m_symbol ON ohlcv_5m (symbol)")
+        self.con.execute("CREATE INDEX IF NOT EXISTS idx_ohlcv_1h_symbol ON ohlcv_1h (symbol)")
+        n1m = self.con.execute("SELECT COUNT(*) FROM ohlcv").fetchone()[0]
+        n5 = self.con.execute("SELECT COUNT(*) FROM ohlcv_5m").fetchone()[0]
+        n1h = self.con.execute("SELECT COUNT(*) FROM ohlcv_1h").fetchone()[0]
+        logger.info(f"Bars stored: 1m={n1m:,} 5m={n5:,} 1h={n1h:,}")
 
     def query_df(self, sql: str, params=None) -> pd.DataFrame:
         assert self.con is not None, "Call connect() first"

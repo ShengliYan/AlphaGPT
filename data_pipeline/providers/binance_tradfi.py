@@ -1,6 +1,7 @@
 import asyncio
+import time
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, Awaitable, Callable
 
 import aiohttp
 from loguru import logger
@@ -8,6 +9,23 @@ from loguru import logger
 from ..config import Config
 
 CRYPTO_LEAK_SYMBOLS = ("BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT")
+PageCallback = Callable[[list[dict]], Awaitable[None] | None]
+
+
+class _RateLimiter:
+    def __init__(self, min_interval: float):
+        self.min_interval = max(0.0, float(min_interval))
+        self._lock = asyncio.Lock()
+        self._next = 0.0
+
+    async def wait(self):
+        async with self._lock:
+            now = time.monotonic()
+            delay = self._next - now
+            if delay > 0:
+                await asyncio.sleep(delay)
+                now = time.monotonic()
+            self._next = now + self.min_interval
 
 
 def is_tradfi_usdt_perp(
@@ -46,6 +64,7 @@ class BinanceTradFiProvider:
         self.base_url = Config.BINANCE_BASE_URL.rstrip("/")
         self.fallback_urls = [u.rstrip("/") for u in Config.BINANCE_FALLBACK_URLS]
         self.semaphore = asyncio.Semaphore(Config.CONCURRENCY)
+        self.rate_limiter = _RateLimiter(Config.KLINE_MIN_INTERVAL_SEC)
         self.headers = {"User-Agent": "AlphaGPT-tradfi-research/1.0", "accept": "application/json"}
         self.prefix = Config.BINANCE_FAPI_PREFIX.rstrip("/")
 
@@ -65,6 +84,7 @@ class BinanceTradFiProvider:
         for root in urls:
             url = self._url(path, root)
             try:
+                await self.rate_limiter.wait()
                 async with session.get(url, params=params, headers=self.headers) as resp:
                     if resp.status == 200:
                         self.base_url = root
@@ -192,8 +212,9 @@ class BinanceTradFiProvider:
         interval: str | None = None,
         start_ms: int | None = None,
         end_ms: int | None = None,
+        on_page: PageCallback | None = None,
     ) -> list[dict]:
-        interval = interval or Config.BINANCE_INTERVAL
+        interval = interval or Config.STORAGE_INTERVAL
         cursor = start_ms if start_ms is not None else self._default_start_ms()
 
         candles: list[dict] = []
@@ -210,12 +231,17 @@ class BinanceTradFiProvider:
                 data = await self._get_json(session, self._fapi("/klines"), params=params)
             if not data:
                 break
-            candles.extend(self._parse_kline(symbol, row) for row in data)
+            page = [self._parse_kline(symbol, row) for row in data]
+            if on_page is not None:
+                maybe = on_page(page)
+                if asyncio.iscoroutine(maybe):
+                    await maybe
+            else:
+                candles.extend(page)
             if len(data) < Config.BINANCE_KLINE_LIMIT:
                 break
             next_open = int(data[-1][0]) + 1
             if next_open <= cursor:
                 break
             cursor = next_open
-            await asyncio.sleep(0.05)
         return candles

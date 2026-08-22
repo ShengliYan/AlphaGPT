@@ -12,10 +12,12 @@ class DataManager:
     def __init__(self):
         self.db = DBManager()
         self.provider = BinanceTradFiProvider()
+        self._write_lock = asyncio.Lock()
 
     async def initialize(self):
         self.db.connect()
         self.db.init_schema()
+        self.db.prepare_storage_interval(Config.STORAGE_INTERVAL)
 
     async def close(self):
         self.db.close()
@@ -39,27 +41,51 @@ class DataManager:
                 universe = (seeds + rest)[: Config.MAX_SYMBOLS]
                 logger.info(f"Truncated universe to MAX_SYMBOLS={Config.MAX_SYMBOLS}")
 
-            self.db.reset_market_tables()
             self.db.upsert_symbols(universe)
-            logger.info(f"Fetching {Config.BINANCE_INTERVAL} klines for {len(universe)} TradFi perps...")
+            last_ms = self.db.last_bar_times_ms()
+            logger.info(
+                f"Fetching {Config.STORAGE_INTERVAL} klines for {len(universe)} TradFi perps "
+                f"({len(last_ms)} symbols already have bars)..."
+            )
 
             total_candles = 0
+
+            async def ingest_one(item: dict) -> int:
+                symbol = item["symbol"]
+                start_ms = last_ms.get(symbol)
+                if start_ms is None:
+                    start_ms = item.get("onboard_ms")
+                inserted = 0
+
+                async def on_page(page: list[dict]):
+                    nonlocal inserted
+                    async with self._write_lock:
+                        inserted += self.db.batch_insert_ohlcv(page)
+
+                await self.provider.get_klines(
+                    session,
+                    symbol,
+                    interval=Config.STORAGE_INTERVAL,
+                    start_ms=start_ms,
+                    on_page=on_page,
+                )
+                return inserted
+
             batch_size = max(1, Config.CONCURRENCY)
             for i in range(0, len(universe), batch_size):
                 batch = universe[i:i + batch_size]
-                tasks = [
-                    self.provider.get_klines(session, item["symbol"], start_ms=item.get("onboard_ms"))
-                    for item in batch
-                ]
-                results = await asyncio.gather(*tasks, return_exceptions=True)
-                records = []
+                results = await asyncio.gather(
+                    *[ingest_one(item) for item in batch],
+                    return_exceptions=True,
+                )
+                batch_n = 0
                 for item, result in zip(batch, results):
                     if isinstance(result, Exception):
                         logger.error(f"Kline fetch failed for {item['symbol']}: {result}")
                         continue
-                    records.extend(result)
-                inserted = self.db.batch_insert_ohlcv(records)
-                total_candles += inserted
-                logger.info(f"Processed {i + len(batch)}/{len(universe)} symbols, +{inserted} candles.")
+                    batch_n += int(result)
+                total_candles += batch_n
+                logger.info(f"Processed {i + len(batch)}/{len(universe)} symbols, +{batch_n} 1m candles.")
 
-        logger.success(f"Pipeline complete. Total candles stored: {total_candles}")
+        self.db.rebuild_resampled_bars()
+        logger.success(f"Pipeline complete. New/updated 1m candles: {total_candles}")
