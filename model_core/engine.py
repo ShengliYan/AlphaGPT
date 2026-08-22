@@ -23,6 +23,9 @@ def _json_num(value):
     if not math.isfinite(value):
         return None
     return value
+
+
+def _slice_times(times, sl):
     if times is None:
         return None
     return times[sl]
@@ -207,6 +210,11 @@ class AlphaEngine:
     def evaluate_windows(self):
         formula = self.best_formula if self.best_formula is not None else [0]
         windows = {}
+        extra_formulas = {"best": formula, "baseline_RET": [0]}
+        for idx, feat_name in enumerate(FORMULA_VOCAB.feature_names):
+            if feat_name == "RET":
+                continue
+            extra_formulas[f"feature_{feat_name}"] = [idx]
         with torch.no_grad():
             for name, sl in self.loader.split.items():
                 if sl.stop <= sl.start:
@@ -215,26 +223,18 @@ class AlphaEngine:
                 raw = self.loader.slice_raw(sl)
                 target = self.loader.slice_target(sl)
                 times = _slice_times(self.loader.times, sl)
-                best_res = self.vm.execute(formula, feat)
-                baseline_res = self.vm.execute([0], feat)
                 fallback = feat[:, 0, :]
-                windows[name] = {
-                    **self.loader.window_meta(name),
-                    "best": self.bt.summarize(
-                        best_res if best_res is not None else fallback,
+                window = {**self.loader.window_meta(name)}
+                for key, tokens in extra_formulas.items():
+                    res = self.vm.execute(tokens, feat)
+                    window[key] = self.bt.summarize(
+                        res if res is not None else fallback,
                         raw,
                         target,
                         symbols=self.loader.symbols,
                         times=times,
-                    ),
-                    "baseline_RET": self.bt.summarize(
-                        baseline_res if baseline_res is not None else fallback,
-                        raw,
-                        target,
-                        symbols=self.loader.symbols,
-                        times=times,
-                    ),
-                }
+                    )
+                windows[name] = window
         return {
             "bar_interval": ModelConfig.BAR_INTERVAL,
             "n_symbols": len(self.loader.symbols),
@@ -256,28 +256,25 @@ class AlphaEngine:
     def _print_report(report):
         print("\n=== OOS backtest ===")
         print(f"formula: {report.get('formula_decoded')} {report.get('formula')}")
-        for name, window in report.get("windows", {}).items():
-            best = window.get("best") or {}
-            base = window.get("baseline_RET") or {}
+        for window_name, window in report.get("windows", {}).items():
             print(
-                f"{name:8s} {window.get('start')} → {window.get('end')}  bars={window.get('n_bars')}"
+                f"{window_name:8s} {window.get('start')} → {window.get('end')}  bars={window.get('n_bars')}"
             )
-            print(
-                f"  best     median_ann_sharpe={best.get('median_ann_sharpe'):.3f}  "
-                f"ew_ann_sharpe={best.get('ew_ann_sharpe'):.3f}  "
-                f"ew_ret={best.get('ew_total_return'):.4f}  "
-                f"maxDD={best.get('ew_max_drawdown'):.4f}  "
-                f"trades={best.get('total_trades'):.0f}  "
-                f"hit={best.get('ew_hit_rate'):.3f}"
-            )
-            print(
-                f"  baseline median_ann_sharpe={base.get('median_ann_sharpe'):.3f}  "
-                f"ew_ann_sharpe={base.get('ew_ann_sharpe'):.3f}  "
-                f"ew_ret={base.get('ew_total_return'):.4f}  "
-                f"maxDD={base.get('ew_max_drawdown'):.4f}  "
-                f"trades={base.get('total_trades'):.0f}  "
-                f"hit={base.get('ew_hit_rate'):.3f}"
-            )
+            keys = ["best", "baseline_RET"] + [
+                f"feature_{feat}" for feat in FORMULA_VOCAB.feature_names if feat != "RET"
+            ]
+            for key in keys:
+                stats = window.get(key) or {}
+                if not stats:
+                    continue
+                print(
+                    f"  {key:16s} med_ann_sharpe={stats.get('median_ann_sharpe'):.3f}  "
+                    f"ew_ann_sharpe={stats.get('ew_ann_sharpe'):.3f}  "
+                    f"ew_ann_ret={stats.get('ew_ann_return'):.3f}  "
+                    f"maxDD_sum={stats.get('ew_max_drawdown'):.3f}  "
+                    f"trades={stats.get('total_trades'):.0f}  "
+                    f"hit={stats.get('ew_hit_rate'):.3f}"
+                )
 
 
 if __name__ == "__main__":

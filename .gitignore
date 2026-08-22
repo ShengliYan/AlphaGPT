@@ -55,6 +55,7 @@ best_meme_strategy.json
 training_history.json
 portfolio_state.json
 STOP_SIGNAL
+reports/*.log
 
 # Testing
 .pytest_cache/

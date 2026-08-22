@@ -76,6 +76,8 @@ class SpotBacktest:
         ew_std = ew.std() + 1e-8
         ew_period_sharpe = _to_float(ew_mean / ew_std * math.sqrt(max(n_bars, 1)))
         ew_ann_sharpe = _to_float(ew_mean / ew_std * ann)
+        ew_mean_bar = _to_float(ew_mean)
+        ew_ann_return = ew_mean_bar * bars_per_year
         equity = ew.cumsum(0)
         peak = torch.cummax(equity, 0).values
         max_dd = _to_float((equity - peak).min())
@@ -95,7 +97,8 @@ class SpotBacktest:
                     "active_bars": _to_float(activity[i]),
                 }
             )
-        ranked = sorted(per_symbol, key=lambda row: row["ann_sharpe"], reverse=True)
+        traded = [row for row in per_symbol if row["trades"] > 0]
+        ranked = sorted(traded or per_symbol, key=lambda row: row["ann_sharpe"], reverse=True)
 
         return {
             "n_symbols": int(n_symbols),
@@ -105,7 +108,9 @@ class SpotBacktest:
             "mean_ann_sharpe": _to_float(ann_sharpe.mean()),
             "ew_ann_sharpe": ew_ann_sharpe,
             "ew_period_sharpe": ew_period_sharpe,
-            "ew_total_return": total_ret,
+            "ew_mean_bar": ew_mean_bar,
+            "ew_ann_return": ew_ann_return,
+            "ew_sum_bar": total_ret,
             "ew_max_drawdown": max_dd,
             "ew_hit_rate": hit_rate,
             "mean_pnl": _to_float(mean_pnl.mean()),
