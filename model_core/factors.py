@@ -127,7 +127,7 @@ class AdvancedFactorEngineer:
             close_pos,
             self.robust_norm(vol_trend),
         ], dim=1)
-        return features
+        return torch.nan_to_num(features, nan=0.0, posinf=5.0, neginf=-5.0)
 
 
 class FeatureEngineer:
@@ -163,4 +163,4 @@ class FeatureEngineer:
             robust_norm(dev),
             robust_norm(log_vol),
         ], dim=1)
-        return features
+        return torch.nan_to_num(features, nan=0.0, posinf=5.0, neginf=-5.0)

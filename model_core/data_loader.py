@@ -16,7 +16,7 @@ class CryptoDataLoader:
         self.symbols = []
         self.addresses = []
 
-    def load_data(self, limit_tokens=50):
+    def load_data(self, limit_tokens=100):
         path = Path(self.db_path)
         if not path.exists():
             raise FileNotFoundError(
@@ -57,20 +57,24 @@ class CryptoDataLoader:
             return torch.tensor(pivot.values.T, dtype=torch.float32, device=ModelConfig.DEVICE)
 
         quote_volume = to_tensor("quote_volume")
+        close_t = to_tensor("close")
         self.raw_data_cache = {
             "open": to_tensor("open"),
             "high": to_tensor("high"),
             "low": to_tensor("low"),
-            "close": to_tensor("close"),
+            "close": close_t,
             "volume": to_tensor("volume"),
             "quote_volume": quote_volume,
             "n_trades": to_tensor("n_trades"),
             "liquidity": quote_volume,
         }
         self.feat_tensor = FeatureEngineer.compute_features(self.raw_data_cache)
+        self.feat_tensor = torch.nan_to_num(self.feat_tensor, nan=0.0, posinf=5.0, neginf=-5.0)
         op = self.raw_data_cache["open"]
         t1 = torch.roll(op, -1, dims=1)
         t2 = torch.roll(op, -2, dims=1)
-        self.target_ret = torch.log(t2 / (t1 + 1e-9))
+        safe = (t1 > 1e-12) & (t2 > 1e-12)
+        self.target_ret = torch.where(safe, torch.log(t2 / t1), torch.zeros_like(op))
         self.target_ret[:, -2:] = 0.0
+        self.target_ret = torch.nan_to_num(self.target_ret, nan=0.0, posinf=0.0, neginf=0.0)
         print(f"Data Ready. Symbols={len(self.symbols)} Shape={tuple(self.feat_tensor.shape)}")

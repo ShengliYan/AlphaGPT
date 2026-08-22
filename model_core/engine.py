@@ -98,6 +98,9 @@ class AlphaEngine:
                     continue
 
                 score, ret_val = self.bt.evaluate(res, self.loader.raw_data_cache, self.loader.target_ret)
+                if not torch.isfinite(score):
+                    rewards[i] = -5.0
+                    continue
                 rewards[i] = score
 
                 if score.item() > self.best_score:

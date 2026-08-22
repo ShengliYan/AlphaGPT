@@ -27,19 +27,22 @@ class SpotBacktest:
         tx_cost = turnover * total_slippage_one_way
 
         gross_pnl = position * target_ret
-        net_pnl = gross_pnl - tx_cost
+        net_pnl = torch.nan_to_num(gross_pnl - tx_cost, nan=0.0, posinf=0.0, neginf=0.0)
 
         n_symbols, n_bars = net_pnl.shape
         mean_pnl = net_pnl.mean(dim=1)
         std_pnl = net_pnl.std(dim=1) + 1e-8
         sharpe = mean_pnl / std_pnl * math.sqrt(max(n_bars, 1))
+        sharpe = torch.nan_to_num(sharpe, nan=0.0, posinf=0.0, neginf=0.0)
 
         activity = position.sum(dim=1)
         min_trades = max(1.0, 5.0 * n_symbols / 300.0)
         inactive = activity < min_trades
         score = torch.where(inactive, sharpe * 0.5, sharpe)
         final_fitness = torch.median(score)
-        return final_fitness, mean_pnl.mean().item()
+        if not torch.isfinite(final_fitness):
+            final_fitness = torch.zeros((), device=score.device)
+        return final_fitness, float(mean_pnl.mean().item())
 
 
 MemeBacktest = SpotBacktest
