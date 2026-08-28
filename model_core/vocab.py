@@ -5,9 +5,9 @@ from .ops import OPS_CONFIG
 
 FEATURE_NAMES = (
     "RET",
-    "LIQ_SCORE",
+    "LIQ",
     "PRESSURE",
-    "FOMO",
+    "VOL_CHG",
     "DEV",
     "LOG_VOL",
 )
@@ -39,3 +39,15 @@ FORMULA_VOCAB = FormulaVocab(
     feature_names=FEATURE_NAMES,
     operator_names=tuple(cfg[0] for cfg in OPS_CONFIG),
 )
+
+
+def decode_formula(tokens) -> list[str]:
+    names = FORMULA_VOCAB.token_names
+    decoded = []
+    for token in tokens or []:
+        idx = int(token)
+        if 0 <= idx < len(names):
+            decoded.append(names[idx])
+        else:
+            decoded.append(f"?{idx}")
+    return decoded

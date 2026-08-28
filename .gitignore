@@ -44,6 +44,19 @@ ENV/
 .env
 .env.local
 
+# Local research artifacts
+data/*.duckdb
+data/*.duckdb.wal
+*.duckdb
+*.duckdb.wal
+best_tradfi_strategy.json
+best_bstock_strategy.json
+best_meme_strategy.json
+training_history.json
+portfolio_state.json
+STOP_SIGNAL
+reports/*.log
+
 # Testing
 .pytest_cache/
 .coverage
